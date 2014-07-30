@@ -2,16 +2,46 @@
 # OH look what this became!
 # I like brew, don't you? Lets write dew drops and have fun!
 
+COLOR_RESET="\033[0;0m"
+
+function echo_red {
+  local red="\033[0;31m"
+  echo -e $red"$1"$COLOR_RESET
+}
+
+function echo_green {
+  local green="\033[0;32m"
+  echo -e $green"$1"$COLOR_RESET
+}
+
+function echo_blue {
+  local red="\033[0;34m"
+  echo -e $red"$1"$COLOR_RESET
+}
+
+function echo_yellow {
+  local yellow="\033[1;33m"
+  echo -e $yellow"$1"$COLOR_RESET
+}
+
 function debug() {
   if [[ ! -z $DEBUG && ! -z $1 ]]; then
-    echo "$@"
+    echo_blue "debug:$COLOR_RESET $@"
   fi
   [[ ! -z $DEBUG ]]
 }
 
 function throw() {
-  echo "$@" 1>&2
+  echo_red "fatal:$COLOR_RESET $@" 1>&2
   exit 1
+}
+
+function WantTo() {
+  read -p "$@ (y/N)? " choice
+  case "$choice" in 
+    y|Y ) return 0;;
+    n|N|* ) return 1;;
+  esac
 }
 
 ROOT=$(dirname $(readlink -f $0))/..
@@ -20,7 +50,7 @@ debug "ROOT=$ROOT"
 DROPS=$ROOT/drops
 debug "DROPS=$DROPS"
 
-DATA=$HOME/.docker-fu-data
+DATA=$HOME/.dew-data
 debug "DATA=$DATA"
 mkdir -p $DATA
 
@@ -36,7 +66,6 @@ function SetContainerScope() {
   debug "NAME=$NAME"
   SCOPE=$SCOPES/$NAME
   debug "SCOPE=$SCOPE"
-  mkdir -p $SCOPE
 }
 
 ##
@@ -86,35 +115,56 @@ function SetContainerEnv() {
 
 # sudo rm -rf /opt/gitlab/ ; docker rm -f gitlab ;  sudo rm -rf /opt/postgresql/data ; docker rm -f postgresql
 function DestroyContainer() {
-  for item in `ls $SCOPE`; do
-    debug "Found item $item"
-  done
+  if [[ ! -d $SCOPE ]]; then
+    throw "$NAME not found"
+  fi
+  if WantTo "Really destroy container '$NAME'"
+  then
+    for item in $(ls $SCOPE); do
+      debug "item=$item"
+      if [[ "$item" = "volumes" ]]; then
+        for vol in `ls $SCOPE/$item`; do
+          local vol_symlink=$SCOPE/volumes/$vol
+          local vol_realpath=$(readlink $vol_symlink)
+          if WantTo "Delete volume '$vol' ($vol_symlink=>$vol_realpath)"; then
+            rm -rf $vol_symlink $vol_realpath
+          fi
+          echo_green "OK"
+        done
+      fi
+    done
+    rm -rf $SCOPE
+    echo_green "OK"
+  fi
 }
 
 function list() {
   ls $DROPS
 }
 
-function FindDrop() {
-  local init=$DROPS/$name/init
-  local alt_init=$DROPS/$name
+function SelectDrop() {
+  local init=$DROPS/$1/init
+  local alt_init=$DROPS/$1
   if [[ -f $init ]]; then
-    $@
+    DROP=$init
   elif [[ -f $alt_init ]]; then
-    InstallDrop $name $alt_init
+    DROP=$alt_init
   else
     throw "No such formula $name"
   fi
+  debug "DROP=$DROP"
+  SetContainerScope $1
 }
 
 function install() {
-  local name=$2
-  SetContainerScope $1 
-  InstallDrop $name $init
+  SelectDrop $2
+  mkdir -p $SCOPE
+  source $DROP
 }
 
 function destroy() {
-  echo "stub"
+  SelectDrop $2
+  DestroyContainer
 }
 
 case "$1" in
