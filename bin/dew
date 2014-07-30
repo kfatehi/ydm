@@ -183,7 +183,14 @@ function DestroyContainer() {
 }
 
 function list() {
-  ls $DROPS
+  for drop in $(ls $DROPS); do
+    local detail=""
+    local summary=$DROPS/$drop/summary
+    if [[ -f $summary ]]; then
+      local detail="$COLOR_RESET $(cat $summary)"
+    fi
+    echo_blue " * $drop$detail"
+  done
 }
 
 function SelectDrop() {
@@ -194,7 +201,7 @@ function SelectDrop() {
   elif [[ -f $alt_init ]]; then
     DROP=$alt_init
   else
-    throw "No such formula $name"
+    throw "No drop '$name'"
   fi
   debug "DROP=$DROP"
   SetContainerScope $1
