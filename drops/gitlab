@@ -53,7 +53,7 @@ if ContainerRunning "postgresql"; then
     echo "Done"
     dew install gitlab
   fi
-  TailContainerLogs "gitlab"
+  TailContainerLogs
 else
   echo "Setting up postgresql..."
   dew install postgresql

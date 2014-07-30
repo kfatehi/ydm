@@ -74,10 +74,6 @@ function SetContainerImage() {
   debug "IMAGE=$IMAGE"
 }
 
-function TailContainerLogs() {
-  sudo docker logs -f $1
-}
-
 ##
 # FIXME
 # this is cool, but may be better to just grep the cli since we assume it is available
@@ -182,16 +178,6 @@ function DestroyContainer() {
   fi
 }
 
-function list() {
-  for drop in $(ls $DROPS); do
-    local detail=""
-    local summary=$DROPS/$drop/summary
-    if [[ -f $summary ]]; then
-      local detail="$COLOR_RESET $(cat $summary)"
-    fi
-    echo_blue " * $drop$detail"
-  done
-}
 
 function SelectDrop() {
   local init=$DROPS/$1/init
@@ -207,6 +193,26 @@ function SelectDrop() {
   SetContainerScope $1
 }
 
+##
+# You should always end with this
+function TailContainerLogs() {
+  echo_green "Attempting to tail '$NAME' logs -- Ctrl-C to detach!"
+  sudo docker logs -f $NAME
+}
+
+function list() {
+  for drop in $(ls $DROPS); do
+    local detail=""
+    local summary=$DROPS/$drop/summary
+    if [[ -f $summary ]]; then
+      local detail="$COLOR_RESET $(cat $summary)"
+    fi
+    echo_blue " * $drop$detail"
+  done
+}
+
+##
+# Make sure a drop can be installed over and over
 function install() {
   SelectDrop $2
   mkdir -p $SCOPE
@@ -223,10 +229,10 @@ case "$1" in
     $1 $@
     ;;
   * )
+    echo "Dew $(cat $ROOT/VERSION) ( https://github.com/keyvanfatehi/dew ) "
     echo "Example usage: " >&2
     echo "  $(basename $0) list" >&2
     echo "  $(basename $0) install <name>" >&2
     echo "  $(basename $0) destroy <name>" >&2
     exit 1
 esac
-
