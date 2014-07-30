@@ -1,0 +1,72 @@
+#!/bin/bash
+NAME=gitlab
+SCOPE=$HOME/.docker/$NAME
+mkdir -p $SCOPE
+
+IMAGE="sameersbn/gitlab:7.1.0"
+
+ENV_FILE=$SCOPE/env
+cat > $ENV_FILE <<-EOF
+SMTP_DOMAIN=knban.com
+SMTP_HOST=localhost
+SMTP_PORT=25
+GITLAB_HTTPS=true
+GITLAB_HTTPS_ONLY=false
+GITLAB_HOST=gitlab.knban.com
+GITLAB_EMAIL=gitlab@knban.com
+DB_TYPE=postgres
+DB_HOST=$(cat $SCOPE/pg_host)
+DB_USER=gitlab
+DB_PASS=password
+DB_NAME=gitlabhq_production
+EOF
+
+echo $ENV_FILE
+
+# this is cool, but may be better to just grep the cli since we assume it is available
+# otherwise do EVERYTHING via remote api :)
+function ContainerIsRunning() {
+  test $(echo -e "GET /containers/$1/json HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock | grep HTTP | awk '{ print $2 }') -eq 200
+}
+
+function TailContainerLogs() {
+  sudo docker logs -f $1
+}
+
+function SetupGitlab() {
+  sudo docker run --name=gitlab -d \
+    -v /opt/gitlab/data:/home/git/data \
+    -it --rm --link postgresql:postgresql \
+    --env-file $ENV_FILE \
+    $IMAGE app:rake gitlab:setup
+}
+
+function StartGitlab() {
+  sudo docker run --name=gitlab -d \
+    -v /opt/gitlab/data:/home/git/data \
+    -p 10022:22 -p 10080:80 \
+    --env-file $ENV_FILE \
+    $IMAGE
+}
+
+if ContainerIsRunning "postgresql"; then
+  if [[ -f $SCOPE/pg_configured ]]; then
+    StartGitlab
+  else
+    SetupGitlab
+    touch $SCOPE/pg_configured
+    StartGitlab
+  fi
+  TailContainerLogs "gitlab"
+else
+  echo "Setting up postgresql..."
+  ./start_postgresql > /dev/null
+  PG_IP=$(sudo docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
+  echo $PG_IP > $SCOPE/pg_host
+  PGPASS=$(cat $SCOPE/../postgresql/info | grep Password | awk '{print $6}')
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE ROLE gitlab with LOGIN CREATEDB PASSWORD 'password';"
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE DATABASE gitlabhq_production;"
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;"
+ cat $SCOPE/pg_host
+ ./start_gitlab
+fi
