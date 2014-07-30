@@ -20,3 +20,14 @@ and dew destroy <drop>
 the drop author handles complex shit like fetching other docker images, creating containers, linking them, the nuances command line shit
 and spits out the relevant info that you need, like ports, etc
 ```
+
+# Drops
+
+## Ready
+
+* gitlab
+* postgresql
+
+## WIP
+
+* strider

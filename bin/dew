@@ -207,7 +207,11 @@ function list() {
     if [[ -f $summary ]]; then
       local detail="$COLOR_RESET $(cat $summary)"
     fi
-    echo_blue " * $drop$detail"
+    if [[ -f $DROPS/$drop/wip ]]; then
+      echo_yellow " * $drop$detail (WIP)"
+    else
+      echo_blue " * $drop$detail"
+    fi
   done
 }
 
