@@ -1,4 +1,4 @@
-#!/bin/bash
+# vim: set syntax=sh:
 SetContainerImage "sameersbn/gitlab:7.1.0"
 AnnounceVolume "data" "/opt/gitlab/data" "/home/git/data"
 
