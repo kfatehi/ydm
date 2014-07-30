@@ -1,0 +1,75 @@
+#!/bin/bash
+# OH look what this became!
+# I like brew, don't you? Lets write dew formulae and have fun!
+
+function debug() {
+  if [[ ! -z $DEBUG ]]; then
+    echo "$@"
+  fi
+}
+
+FU_ROOT=$(dirname $(readlink -f $0))
+debug "FU_ROOT=$FU_ROOT"
+FU_DATA=$HOME/.docker-fu-data
+debug "FU_DATA=$FU_DATA"
+SCOPES=$FU_DATA/scopes
+mkdir -p $SCOPES
+debug "SCOPES=$SCOPES"
+
+function SetContainerName() {
+  NAME=$1
+  debug "NAME=$NAME"
+  SCOPE=$SCOPES/$NAME
+  debug "SCOPE=$SCOPE"
+  mkdir -p $SCOPE
+}
+
+function SetContainerImage() {
+  IMAGE=$1
+  debug "IMAGE=$IMAGE"
+}
+
+function TailContainerLogs() {
+  sudo docker logs -f $1
+}
+
+# this is cool, but may be better to just grep the cli since we assume it is available
+# otherwise do EVERYTHING via remote api :)
+function ContainerRunning() {
+  test $(echo -e "GET /containers/$1/json HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock | grep HTTP | awk '{ print $2 }') -eq 200
+}
+
+function ReportVolume() {
+  local vol=$SCOPE/volumes
+  local name=$1
+  local host_path=$2
+  local container_path=$3
+  mkdir -p $vol
+  ln -sf $2 $vol/$1
+  debug "volumes: `ls -lah $vol`"
+}
+
+function DestroyContainer() {
+  for scope in `ls $HOME/.docker/scopes`; do
+    debug $scope
+  done
+}
+
+# TODO
+# look we use this command to clear context so we can dev this shit
+# sudo rm -rf /opt/gitlab/ ; docker rm -f gitlab ;  sudo rm -rf /opt/postgresql/data ; docker rm -f postgresql
+# you can turn this into a predicatable thing by iterating over the scopes
+# I'm sure you'll do this if you keep adding more and more of these scripts
+
+case "$1" in
+  list | install | destroy )
+    $1 $@
+    ;;
+  * )
+    echo "Example usage: " >&2
+    echo "  $(basename $0) list" >&2
+    echo "  $(basename $0) install <name>" >&2
+    echo "  $(basename $0) destroy <name>" >&2
+    exit 1
+esac
+

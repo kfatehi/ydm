@@ -1,0 +1,30 @@
+#!/bin/bash
+DOCKER_STUFF=$HOME/.docker
+mkdir -p $DOCK
+ENV_FILE=$DOCK/strider.env
+rm -f $ENV_FILE
+cat > $ENV_FILE <<-EOF
+SMTP_USER=keyvan@kebcom.com
+SMTP_PASS=Rac7leerZXC
+HOME="/home/strider" \
+NODE_ENV="production" \
+SERVER_NAME="https://strider.critiqueapp.com" \
+PLUGIN_GITHUB_APP_ID="9ccbe3482d16dc96e875" \
+PLUGIN_GITHUB_APP_SECRET="9325e98610c6be4b4a7f82584df7cca1053dca96" \
+PLUGIN_BITBUCKET_APP_KEY="Wr8YLuMeL5uRNRhb93" \
+PLUGIN_BITBUCKET_APP_SECRET="hT8QUvSAZfRtM7UXkhAU7Y27U6eGEu2d" \
+SMTP_DOMAIN="www.gmail.com"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="jeanre@digitalfilmtree.com" \
+SMTP_PASS="Digital2013" \
+SMTP_FROM="Strider strider@knban.com"
+PORT=49158
+/opt/strider/bin/strider
+EOF
+sudo docker run --name=strider -d \
+  -p 10122:22 -p 10180:3000 \
+  -v /opt/strider/data:/data \
+  -v /opt/strider/src:/tmp/strider-src \
+  --env-file $ENV_FILE niallo/strider
+sudo docker logs -f strider

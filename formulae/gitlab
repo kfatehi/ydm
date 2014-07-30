@@ -1,9 +1,10 @@
 #!/bin/bash
-NAME=gitlab
-SCOPE=$HOME/.docker/$NAME
-mkdir -p $SCOPE
-
-IMAGE="sameersbn/gitlab:7.1.0"
+source ./env.sh
+SetContainerName "gitlab"
+SetContainerImage "sameersbn/gitlab:7.1.0"
+ReportVolume "data" "/opt/gitlab/data" "/home/git/data"
+# Before you upgrade, deal with TODOs
+# TODO https://github.com/sameersbn/docker-gitlab#internal-redis-server
 
 ENV_FILE=$SCOPE/env
 cat > $ENV_FILE <<-EOF
@@ -21,20 +22,9 @@ DB_PASS=password
 DB_NAME=gitlabhq_production
 EOF
 
-echo $ENV_FILE
-
-# this is cool, but may be better to just grep the cli since we assume it is available
-# otherwise do EVERYTHING via remote api :)
-function ContainerIsRunning() {
-  test $(echo -e "GET /containers/$1/json HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock | grep HTTP | awk '{ print $2 }') -eq 200
-}
-
-function TailContainerLogs() {
-  sudo docker logs -f $1
-}
 
 function SetupGitlab() {
-  sudo docker run --name=gitlab -d \
+  sudo docker run --name=gitlab \
     -v /opt/gitlab/data:/home/git/data \
     -it --rm --link postgresql:postgresql \
     --env-file $ENV_FILE \
@@ -49,18 +39,23 @@ function StartGitlab() {
     $IMAGE
 }
 
-if ContainerIsRunning "postgresql"; then
+if ContainerRunning "postgresql"; then
   if [[ -f $SCOPE/pg_configured ]]; then
+    echo "Postgresql is configured. Starting gitlab!"
     StartGitlab
   else
-    SetupGitlab
     touch $SCOPE/pg_configured
-    StartGitlab
+    echo "Setting up postgres for gitlab..."
+    SetupGitlab
+    echo "Done"
+    # FIXME this never exits, you actually have to wait for it to finish and then go
+    # docker rm -f gitlab
+    # then just run ./start_gitlab again
   fi
   TailContainerLogs "gitlab"
 else
   echo "Setting up postgresql..."
-  ./start_postgresql > /dev/null
+  $FU/start_postgresql > /dev/null
   PG_IP=$(sudo docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
   echo $PG_IP > $SCOPE/pg_host
   PGPASS=$(cat $SCOPE/../postgresql/info | grep Password | awk '{print $6}')
@@ -68,5 +63,5 @@ else
   PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE DATABASE gitlabhq_production;"
   PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;"
  cat $SCOPE/pg_host
- ./start_gitlab
+ $FU/start_gitlab
 fi

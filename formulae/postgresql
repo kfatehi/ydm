@@ -1,9 +1,6 @@
 #!/bin/bash
-NAME=postgresql
-SCOPE=$HOME/.docker/$NAME
-mkdir -p $SCOPE
-
-IMAGE="sameersbn/postgresql:latest"
+source ./env.sh
+DefineContainer "postgresql" "sameersbn/postgresql:latest"
 
 function ContainerIsRunning() {
   test $(echo -e "GET /containers/$1/json HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock | grep HTTP | awk '{ print $2 }') -eq 200
