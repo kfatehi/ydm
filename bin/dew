@@ -1,6 +1,6 @@
 #!/bin/bash
 # OH look what this became!
-# I like brew, don't you? Lets write dew formulae and have fun!
+# I like brew, don't you? Lets write dew drops and have fun!
 
 function debug() {
   if [[ ! -z $DEBUG && ! -z $1 ]]; then
@@ -17,7 +17,7 @@ function throw() {
 ROOT=$(dirname $(readlink -f $0))/..
 debug "ROOT=$ROOT"
 
-DROPS=$ROOT/formulae
+DROPS=$ROOT/drops
 debug "DROPS=$DROPS"
 
 DATA=$HOME/.docker-fu-data
@@ -95,21 +95,22 @@ function list() {
   ls $DROPS
 }
 
-function InstallDrop() {
-  SetContainerScope $1
-}
-
-function install() {
-  local name=$2
+function FindDrop() {
   local init=$DROPS/$name/init
   local alt_init=$DROPS/$name
   if [[ -f $init ]]; then
-    InstallDrop $name $init
+    $@
   elif [[ -f $alt_init ]]; then
     InstallDrop $name $alt_init
   else
     throw "No such formula $name"
   fi
+}
+
+function install() {
+  local name=$2
+  SetContainerScope $1 
+  InstallDrop $name $init
 }
 
 function destroy() {
