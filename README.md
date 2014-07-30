@@ -1,3 +1,3 @@
-# docker-fu
+# dew
 
-In this repo I bring a method to the madness that can be docker
+Work in progress -- hang tight
