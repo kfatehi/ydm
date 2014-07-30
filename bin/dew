@@ -148,7 +148,7 @@ function DestroyContainer() {
           local vol_symlink=$dir/$vol
           local vol_realpath=$(readlink $vol_symlink)
           if WantTo "Delete volume '$vol' ($vol_symlink=>$vol_realpath)"; then
-            rm -rf $vol_symlink $vol_realpath
+            sudo rm -rf $vol_symlink $vol_realpath
           fi
         done
       fi

@@ -1,6 +1,7 @@
 # vim: set syntax=sh:
 SetContainerImage "sameersbn/gitlab:7.1.0"
 AnnounceVolume "data" "/opt/gitlab/data" "/home/git/data"
+AnnounceLink "db" "postgresql"
 
 # TODO some shit is configurable, like the knban shit
 # and mailer stuff, etc... sensible defaults is what we are
@@ -19,7 +20,7 @@ GITLAB_HTTPS_ONLY=false
 GITLAB_HOST=gitlab.knban.com
 GITLAB_EMAIL=gitlab@knban.com
 DB_TYPE=postgres
-DB_HOST=$(cat $SCOPE/pg_host)
+DB_HOST=$(cat $SCOPE/pg_host 2>/dev/null)
 DB_USER=gitlab
 DB_PASS=password
 DB_NAME=gitlabhq_production
@@ -50,14 +51,12 @@ if ContainerRunning "postgresql"; then
     echo "Setting up postgres for gitlab..."
     SetupGitlab
     echo "Done"
-    # FIXME this never exits, you actually have to wait for it to finish and then go
-    # docker rm -f gitlab
-    # then just run ./start_gitlab again
+    dew install gitlab
   fi
   TailContainerLogs "gitlab"
 else
   echo "Setting up postgresql..."
-  $FU/start_postgresql > /dev/null
+  dew install postgresql
   PG_IP=$(sudo docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
   echo $PG_IP > $SCOPE/pg_host
   PGPASS=$(cat $SCOPE/../postgresql/info | grep Password | awk '{print $6}')
@@ -65,5 +64,5 @@ else
   PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE DATABASE gitlabhq_production;"
   PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;"
  cat $SCOPE/pg_host
- $FU/start_gitlab
+ dew install gitlab
 fi
