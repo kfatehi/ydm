@@ -3,20 +3,35 @@
 # I like brew, don't you? Lets write dew formulae and have fun!
 
 function debug() {
-  if [[ ! -z $DEBUG ]]; then
+  if [[ ! -z $DEBUG && ! -z $1 ]]; then
     echo "$@"
   fi
+  [[ ! -z $DEBUG ]]
 }
 
-FU_ROOT=$(dirname $(readlink -f $0))
-debug "FU_ROOT=$FU_ROOT"
-FU_DATA=$HOME/.docker-fu-data
-debug "FU_DATA=$FU_DATA"
-SCOPES=$FU_DATA/scopes
-mkdir -p $SCOPES
-debug "SCOPES=$SCOPES"
+function throw() {
+  echo "$@" 1>&2
+  exit 1
+}
 
-function SetContainerName() {
+ROOT=$(dirname $(readlink -f $0))/..
+debug "ROOT=$ROOT"
+
+DROPS=$ROOT/formulae
+debug "DROPS=$DROPS"
+
+DATA=$HOME/.docker-fu-data
+debug "DATA=$DATA"
+mkdir -p $DATA
+
+SCOPES=$DATA/scopes
+debug "SCOPES=$SCOPES"
+mkdir -p $SCOPES
+
+
+##
+# First thing you must call
+function SetContainerScope() {
   NAME=$1
   debug "NAME=$NAME"
   SCOPE=$SCOPES/$NAME
@@ -24,6 +39,8 @@ function SetContainerName() {
   mkdir -p $SCOPE
 }
 
+##
+# Something on the index
 function SetContainerImage() {
   IMAGE=$1
   debug "IMAGE=$IMAGE"
@@ -33,13 +50,17 @@ function TailContainerLogs() {
   sudo docker logs -f $1
 }
 
+##
+# FIXME
 # this is cool, but may be better to just grep the cli since we assume it is available
 # otherwise do EVERYTHING via remote api :)
 function ContainerRunning() {
   test $(echo -e "GET /containers/$1/json HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock | grep HTTP | awk '{ print $2 }') -eq 200
 }
 
-function ReportVolume() {
+##
+# If you don't use this we can't properly uninstall
+function AnnounceVolume() {
   local vol=$SCOPE/volumes
   local name=$1
   local host_path=$2
@@ -49,17 +70,51 @@ function ReportVolume() {
   debug "volumes: `ls -lah $vol`"
 }
 
+##
+# Set it with a heredoc
+# TODO support setting one at a time too
+function SetContainerEnv() {
+  ENV_FILE=$SCOPE/env
+  echo "" > $ENV_FILE
+  while read line
+  do
+    array=( ${array[@]} $line )
+    echo ${array[@]} >> $ENV_FILE
+  done
+  debug && cat $ENV_FILE
+}
+
+# sudo rm -rf /opt/gitlab/ ; docker rm -f gitlab ;  sudo rm -rf /opt/postgresql/data ; docker rm -f postgresql
 function DestroyContainer() {
-  for scope in `ls $HOME/.docker/scopes`; do
-    debug $scope
+  for item in `ls $SCOPE`; do
+    debug "Found item $item"
   done
 }
 
-# TODO
-# look we use this command to clear context so we can dev this shit
-# sudo rm -rf /opt/gitlab/ ; docker rm -f gitlab ;  sudo rm -rf /opt/postgresql/data ; docker rm -f postgresql
-# you can turn this into a predicatable thing by iterating over the scopes
-# I'm sure you'll do this if you keep adding more and more of these scripts
+function list() {
+  ls $DROPS
+}
+
+function InstallDrop() {
+  SetContainerScope $1
+}
+
+function install() {
+  local name=$2
+  local init=$DROPS/$name/init
+  local alt_init=$DROPS/$name
+  if [[ -f $init ]]; then
+    InstallDrop $name $init
+  elif [[ -f $alt_init ]]; then
+    InstallDrop $name $alt_init
+  else
+    throw "No such formula $name"
+  fi
+}
+
+function destroy() {
+  echo "stub"
+}
 
 case "$1" in
   list | install | destroy )

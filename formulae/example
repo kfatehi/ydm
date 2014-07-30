@@ -1,6 +1,13 @@
-SetContainerScope "gitlab"
+SetContainerScope "example"
 SetContainerImage "sameersbn/gitlab:7.1.0"
 ReportVolume "data" "/opt/gitlab/data" "/home/git/data"
+
+SetContainerScope "test"
+DestroyContainer
+SetContainerEnv <<-EOF
+test
+estetset
+EOF
 
 # TODO some shit is configurable, like the knban shit
 # and mailer stuff, etc... sensible defaults is what we are
