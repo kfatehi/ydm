@@ -1,6 +1,6 @@
-SetContainerScope "gitlab"
+#!/bin/bash
 SetContainerImage "sameersbn/gitlab:7.1.0"
-ReportVolume "data" "/opt/gitlab/data" "/home/git/data"
+AnnounceVolume "data" "/opt/gitlab/data" "/home/git/data"
 
 # TODO some shit is configurable, like the knban shit
 # and mailer stuff, etc... sensible defaults is what we are
@@ -10,7 +10,7 @@ ReportVolume "data" "/opt/gitlab/data" "/home/git/data"
 # Before you upgrade, deal with TODOs
 # TODO https://github.com/sameersbn/docker-gitlab#internal-redis-server
 
-SetContainerEnv <<-EOF
+SetContainerEnv <<-VARS
 SMTP_DOMAIN=knban.com
 SMTP_HOST=localhost
 SMTP_PORT=25
@@ -23,8 +23,7 @@ DB_HOST=$(cat $SCOPE/pg_host)
 DB_USER=gitlab
 DB_PASS=password
 DB_NAME=gitlabhq_production
-EOF
-
+VARS
 
 function SetupGitlab() {
   sudo docker run --name=gitlab \

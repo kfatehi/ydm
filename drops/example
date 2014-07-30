@@ -6,3 +6,5 @@ SetContainerEnv <<-EOF
 HOME=$HOME
 MORE_STUFF="additional stuff"
 EOF
+
+echo $VOLUMES

@@ -104,7 +104,9 @@ function AnnounceLink() {
   local id=$1
   local name=$2
   mkdir -p $links
-  echo $name > $links/$id && echo_green "link '$id' (drop: $2)"
+  echo $name > $links/$id
+  mkdir -p $SCOPES/$name
+  echo_green "link '$id' (drop: $2)"
 }
 
 ##
@@ -133,6 +135,7 @@ function DestroyContainer() {
 
   if WantTo "Really destroy container '$NAME'"
   then
+    sudo docker rm -f $NAME
     for item in $(ls $SCOPE); do
       debug "item=$item"
 
@@ -173,6 +176,7 @@ function DestroyContainer() {
         done
       fi
     done
+
     rm -rf $SCOPE
     echo_red "destroyed $SCOPE"
   fi
