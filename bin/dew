@@ -58,7 +58,6 @@ SCOPES=$DATA/scopes
 debug "SCOPES=$SCOPES"
 mkdir -p $SCOPES
 
-
 ##
 # First thing you must call
 function SetContainerScope() {
@@ -88,53 +87,94 @@ function ContainerRunning() {
 }
 
 ##
-# If you don't use this we can't properly uninstall
+# If you don't use this we can't properly cleanup volumes on uninstall
 function AnnounceVolume() {
-  local vol=$SCOPE/volumes
-  local name=$1
+  local volumes=$SCOPE/volumes
+  local id=$1
   local host_path=$2
   local container_path=$3
-  mkdir -p $vol
-  ln -sf $2 $vol/$1
-  debug "volumes: `ls -lah $vol`"
+  mkdir -p $volumes
+  ln -sf $2 $volumes/$id && echo_green "volume '$id' ($2=>$3)"
+}
+
+##
+# If you don't use this we can't properly cleanup links on uninstall
+function AnnounceLink() {
+  local links=$SCOPE/links
+  local id=$1
+  local name=$2
+  mkdir -p $links
+  echo $name > $links/$id && echo_green "link '$id' (drop: $2)"
 }
 
 ##
 # Set it with a heredoc
-# TODO support setting one at a time too
 function SetContainerEnv() {
   ENV_FILE=$SCOPE/env
-  echo "" > $ENV_FILE
+  rm -f $ENV_FILE
   while read line
   do
-    array=( ${array[@]} $line )
-    echo ${array[@]} >> $ENV_FILE
+    echo $line >> $ENV_FILE
   done
-  debug && cat $ENV_FILE
+  if debug; then
+    debug "ENV_FILE=$ENV_FILE"
+    debug '<cat ENV_FILE>'
+    cat $ENV_FILE
+    debug '</cat ENV_FILE>'
+  fi
 }
+
 
 # sudo rm -rf /opt/gitlab/ ; docker rm -f gitlab ;  sudo rm -rf /opt/postgresql/data ; docker rm -f postgresql
 function DestroyContainer() {
   if [[ ! -d $SCOPE ]]; then
     throw "$NAME not found"
   fi
+
   if WantTo "Really destroy container '$NAME'"
   then
     for item in $(ls $SCOPE); do
       debug "item=$item"
-      if [[ "$item" = "volumes" ]]; then
-        for vol in `ls $SCOPE/$item`; do
-          local vol_symlink=$SCOPE/volumes/$vol
+
+      local dir=$SCOPE/$item
+      debug "dir=$dir"
+
+      # Delete volumes
+      if [[ "$item" = "volumes" && -d $dir ]]; then
+        for vol in `ls $dir`; do
+          local vol_symlink=$dir/$vol
           local vol_realpath=$(readlink $vol_symlink)
           if WantTo "Delete volume '$vol' ($vol_symlink=>$vol_realpath)"; then
             rm -rf $vol_symlink $vol_realpath
           fi
-          echo_green "OK"
+        done
+      fi
+
+      # Delete links
+      if [[ "$item" = "links" && -d $dir ]]; then
+        for link in `ls $dir`; do
+          local link_name=$(cat $dir/$link)
+          debug "link_name=$link_name"
+          local link_scope=$SCOPES/$link_name
+          debug "link_scope=$link_scope"
+          if [[ -d $link_scope ]]; then
+            local prev_name=$NAME
+            debug "prev_name=$prev_name"
+            SelectDrop $link_name
+            debug "SelectDrop $link_name"
+            if WantTo "Destroy linked container '$link' ($link_name)"; then
+              DestroyContainer $name
+              rm -f $dir/$link
+              echo_red "removed link $dir/$link"
+            fi
+            SelectDrop $prev_name
+            debug "SelectDrop $prev_name"
+          fi
         done
       fi
     done
     rm -rf $SCOPE
-    echo_green "OK"
+    echo_red "destroyed $SCOPE"
   fi
 }
 
