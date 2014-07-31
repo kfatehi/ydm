@@ -2,10 +2,8 @@
 var argv = require('minimist')(process.argv.slice(2));
 var action = argv._[0];
 var dropName = argv._[1];
-
-var Dew = require('../lib/dew.js');
-
-dew = new Dew();
+var Dew = require('../index').Dew;
+var dew = new Dew();
 
 try {
   dew[action](dropName)
