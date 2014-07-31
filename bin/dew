@@ -10,24 +10,25 @@ var dew = new Dew({
   src: path.resolve(__dirname, '..')
 });
 
-try {
-  if (action === 'list') {
-    dew.drops(function (err, res) {
-      if (err) throw err;
-      console.log("Listing drops");
-      _.each(res, function (info, name) {
-        console.log(" * "+name);
-      });
+if (action === 'list') {
+  dew.drops(function (err, res) {
+    if (err) throw err;
+    console.log("Listing drops");
+    _.each(res, function (info, name) {
+      console.log(" * "+name);
     });
-  } else if (action === 'install') {
-    throw new Error("not implemented");
-  } else if (action === 'destroy') {
-    throw new Error("not implemented");
-  } else help()
-} catch (e) {
-  console.error(e.message);
-  help();
-}
+  });
+} else if (action === 'install') {
+  dew.install(dropName, function (err, res) {
+    if (err) console.error(err.message);
+    else console.log(res);
+  });
+} else if (action === 'destroy') {
+  dew.destroy(dropName, function () {
+    if (err) console.error(err.message);
+    else console.log(res);
+  });
+} else help()
 
 function help() {
   var pkg = require('../package.json');
