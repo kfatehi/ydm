@@ -12,7 +12,12 @@ describe("Dew", function() {
       out = dew.list();
     });
     it("returns available drops", function() {
-      expect(out).to.deep.eq([]);
+      expect(out).to.deep.eq([
+        'example',
+        'gitlab',
+        'postgresql',
+        'strider'
+      ]);
     });
   });
 });

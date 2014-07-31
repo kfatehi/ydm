@@ -1,24 +1,30 @@
 {
   "name": "dew-node",
   "version": "0.0.2",
-  "description": "",
+  "description": "brew for docker",
   "main": "index.js",
   "bin": {
     "dew": "bin/dew"
   },
   "scripts": {
     "test": "mocha --recursive test",
-    "tdd": "mocha -w --recursive test"
+    "tdd": "mocha -w --recursive test 2>&1 | simple-stacktrace"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keyvanfatehi/dew.git"
   },
   "author": "Keyvan Fatehi <keyvanfatehi@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "dockerode": "^2.0.1",
     "minimist": "^0.2.0"
   },
   "devDependencies": {
     "chai": "^1.9.1",
     "mocha": "^1.21.3",
     "nock": "^0.42.3",
+    "simple-stacktrace": "^0.2.1",
     "sinon": "^1.10.3"
   }
 }
