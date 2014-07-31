@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+var argv = require('minimist')(process.argv.slice(2));
+var action = argv._[0];
+var dropName = argv._[1];
+
+var Dew = require('../lib/dew.js');
+
+dew = new Dew();
+
+if (dew.action) {
+  dew[action][dropName]
+} else {
+  help();
+}
+
+function help() {
+  var _0 = require('path').basename(__filename);
+  console.log("Dew "+version()+" ( https://github.com/keyvanfatehi/dew ) ")
+  console.log("Example usage: ")
+  console.log("  "+_0+" list")
+  console.log("  "+_0+" install <name>")
+  console.log("  "+_0+" destroy <name>")
+};
+
+function version() {
+  return require('../package.json').version;
+};
