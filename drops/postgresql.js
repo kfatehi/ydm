@@ -3,13 +3,17 @@ module.exports = function Postgresql(scope) {
   var tools = scope.tools;
 
   this.install = function (done) {
-    if (tools.containerExists('postgresql')) {
+    tools.getContainer(function (err, container) {
+      if (container.Running) {
+        
+      }
+      console.log(arguments);
       if (tools.containerRunning('postgresql')) {
         done(); // nothing to do
       } else {
         tools.startContainer('postgresql', done);
       }
-    } else {
+
       tools.createContainer({
         image: image,
         volumes: {
@@ -19,6 +23,6 @@ module.exports = function Postgresql(scope) {
         // inspect etc
         done();
       });
-    }
+    })
   }
 }
