@@ -21,7 +21,8 @@
     "dockerode": "^2.0.1",
     "glob": "^4.0.5",
     "lodash": "^2.4.1",
-    "minimist": "^0.2.0"
+    "minimist": "^0.2.0",
+    "uri-js": "^1.4.2"
   },
   "devDependencies": {
     "chai": "^1.9.1",
