@@ -1,0 +1,8 @@
+# vim: set syntax=sh:
+SetContainerImage "sameersbn/gitlab:7.1.0"
+AnnounceVolume "data" "/opt/gitlab/data" "/home/git/data"
+AnnounceLink "db" "postgresql"
+SetContainerEnv <<-EOF
+HOME=$HOME
+MORE_STUFF="additional stuff"
+EOF

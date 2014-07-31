@@ -1,0 +1,68 @@
+# vim: set syntax=sh:
+SetContainerImage "sameersbn/gitlab:7.1.0"
+AnnounceVolume "data" "/opt/gitlab/data" "/home/git/data"
+AnnounceLink "db" "postgresql"
+
+# TODO some shit is configurable, like the knban shit
+# and mailer stuff, etc... sensible defaults is what we are
+# aiming for here, anyway you need to expose some of this
+# or otherwise find a solution for higher order config
+
+# Before you upgrade, deal with TODOs
+# TODO https://github.com/sameersbn/docker-gitlab#internal-redis-server
+
+SetContainerEnv <<-VARS
+SMTP_DOMAIN=knban.com
+SMTP_HOST=localhost
+SMTP_PORT=25
+GITLAB_HTTPS=true
+GITLAB_HTTPS_ONLY=false
+GITLAB_HOST=gitlab.knban.com
+GITLAB_EMAIL=gitlab@knban.com
+DB_TYPE=postgres
+DB_HOST=$(cat $SCOPE/pg_host 2>/dev/null)
+DB_USER=gitlab
+DB_PASS=password
+DB_NAME=gitlabhq_production
+VARS
+
+function SetupGitlab() {
+  sudo docker run --name=gitlab \
+    -v /opt/gitlab/data:/home/git/data \
+    -it --rm --link postgresql:postgresql \
+    --env-file $ENV_FILE \
+    $IMAGE app:rake gitlab:setup
+}
+
+function StartGitlab() {
+  sudo docker run --name=gitlab -d \
+    -v /opt/gitlab/data:/home/git/data \
+    -p 10022:22 -p 10080:80 \
+    --env-file $ENV_FILE \
+    $IMAGE
+}
+
+if ContainerRunning "postgresql"; then
+  if [[ -f $SCOPE/pg_configured ]]; then
+    echo "Postgresql is configured. Starting gitlab!"
+    StartGitlab
+  else
+    touch $SCOPE/pg_configured
+    echo "Setting up postgres for gitlab..."
+    SetupGitlab
+    echo "Done"
+    dew install gitlab
+  fi
+  TailContainerLogs
+else
+  echo "Setting up postgresql..."
+  dew install postgresql
+  PG_IP=$(sudo docker inspect postgresql | grep IPAddres | awk -F'"' '{print $4}')
+  echo $PG_IP > $SCOPE/pg_host
+  PGPASS=$(cat $SCOPE/../postgresql/info | grep Password | awk '{print $6}')
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE ROLE gitlab with LOGIN CREATEDB PASSWORD 'password';"
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "CREATE DATABASE gitlabhq_production;"
+  PGPASSWORD="$PGPASS" psql -U postgres -d template1 -h $PG_IP --command "GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;"
+ cat $SCOPE/pg_host
+ dew install gitlab
+fi
