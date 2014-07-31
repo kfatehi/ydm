@@ -5,9 +5,6 @@ module.exports = function Postgresql(scope) {
       volumes: {
         data: '/var/lib/postgresql'
       }
-    }, function () {
-      console.log('ok done');
-      done();
-    });
+    }, done);
   }
 }
