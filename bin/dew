@@ -1,25 +1,40 @@
 #!/usr/bin/env node
-var argv = require('minimist')(process.argv.slice(2));
-var action = argv._[0];
-var dropName = argv._[1];
-var Dew = require('../index').Dew;
-var dew = new Dew();
+var argv = require('minimist')(process.argv.slice(2))
+  , action = argv._[0]
+  , dropName = argv._[1]
+  , path = require('path')
+  , _ = require('lodash')
+  , Dew = require('../index').Dew
+
+var dew = new Dew({
+  src: path.resolve(__dirname, '..')
+});
 
 try {
-  dew[action](dropName)
+  if (action === 'list') {
+    dew.drops(function (err, res) {
+      if (err) throw err;
+      console.log("Listing drops");
+      _.each(res, function (info, name) {
+        console.log(" * "+name);
+      });
+    });
+  } else if (action === 'install') {
+    throw new Error("not implemented");
+  } else if (action === 'destroy') {
+    throw new Error("not implemented");
+  } else help()
 } catch (e) {
+  console.error(e.message);
   help();
 }
 
 function help() {
-  var _0 = require('path').basename(__filename);
-  console.log("Dew "+version()+" ( https://github.com/keyvanfatehi/dew ) ")
-  console.log("Example usage: ")
+  var pkg = require('../package.json');
+  var _0 = path.basename(__filename);
+  console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
+  console.log("Usage: ")
   console.log("  "+_0+" list")
   console.log("  "+_0+" install <name>")
   console.log("  "+_0+" destroy <name>")
-};
-
-function version() {
-  return require('../package.json').version;
 };
