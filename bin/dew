@@ -22,7 +22,9 @@ if (action === 'list') {
     var scope = dew.findOrCreateScope(dropName);
     var drop = new Drop(scope)
     if (drop[action]) {
-      drop[action]();
+      drop[action](function () {
+        console.log("Done");
+      });
     } else {
       console.log("Cannot '"+action+"' this drop");
     }

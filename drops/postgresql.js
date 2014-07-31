@@ -1,6 +1,6 @@
-module.exports = function Postgresql(scope, tools) {
-  var image = "sameersbn/postgresql:latest";
-  console.log(scope);
+var image = "sameersbn/postgresql:latest";
+module.exports = function Postgresql(scope) {
+  var tools = scope.tools;
 
   this.install = function (done) {
     if (tools.containerExists('postgresql')) {
@@ -17,6 +17,7 @@ module.exports = function Postgresql(scope, tools) {
         }
       }, function () {
         // inspect etc
+        done();
       });
     }
   }
