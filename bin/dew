@@ -7,9 +7,9 @@ var Dew = require('../lib/dew.js');
 
 dew = new Dew();
 
-if (dew.action) {
-  dew[action][dropName]
-} else {
+try {
+  dew[action](dropName)
+} catch (e) {
   help();
 }
 
