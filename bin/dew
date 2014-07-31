@@ -17,9 +17,15 @@ if (action === 'list') {
   });
   process.exit(0);
 } else if (dropName) {
-  var drop = dew.drops[dropName];
-  if (drop) {
-    drop[action]();
+  var Drop = dew.drops[dropName];
+  if (Drop) {
+    var scope = dew.findOrCreateScope(dropName);
+    var drop = new Drop(scope)
+    if (drop[action]) {
+      drop[action]();
+    } else {
+      console.log("Cannot '"+action+"' this drop");
+    }
   } else {
     console.error('No drop named '+dropName);
     process.exit(1);
