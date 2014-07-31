@@ -11,23 +11,19 @@ var dew = new Dew({
 });
 
 if (action === 'list') {
-  dew.drops(function (err, res) {
-    if (err) throw err;
-    console.log("Listing drops");
-    _.each(res, function (info, name) {
-      console.log(" * "+name);
-    });
+  console.log("Listing drops");
+  _.each(dew.drops, function (info, name) {
+    console.log(" * "+name);
   });
-} else if (action === 'install') {
-  dew.install(dropName, function (err, res) {
-    if (err) console.error(err.message);
-    else console.log(res);
-  });
-} else if (action === 'destroy') {
-  dew.destroy(dropName, function () {
-    if (err) console.error(err.message);
-    else console.log(res);
-  });
+  process.exit(0);
+} else if (dropName) {
+  var drop = dew.drops[dropName];
+  if (drop) {
+    drop[action]();
+  } else {
+    console.error('No drop named '+dropName);
+    process.exit(1);
+  }
 } else help()
 
 function help() {
