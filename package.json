@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha --recursive test",
-    "tdd": "mocha -w --recursive test 2>&1 | simple-stacktrace"
+    "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,8 @@
   "license": "ISC",
   "dependencies": {
     "dockerode": "^2.0.1",
+    "glob": "^4.0.5",
+    "lodash": "^2.4.1",
     "minimist": "^0.2.0"
   },
   "devDependencies": {

@@ -4,20 +4,23 @@ describe("Dew", function() {
   var Dew = require('../../lib/dew.js');
   var dew = null;
   beforeEach(function() {
-    dew = new Dew();
+    dew = new Dew({
+      src: require('path').resolve('.')
+    });
   });
-  describe("list()", function() {
+  describe("drops()", function() {
     var out = null;
-    beforeEach(function() {
-      out = dew.list();
+    beforeEach(function(done) {
+      dew.drops(function (err, res) {
+        if (err) throw err;
+        out = res;
+        done();
+      });
     });
     it("returns available drops", function() {
-      expect(out).to.deep.eq([
-        'example',
-        'gitlab',
-        'postgresql',
-        'strider'
-      ]);
+      expect(Object.keys(out)).
+        to.contain('example').and.
+        to.contain('example2');
     });
   });
 });
