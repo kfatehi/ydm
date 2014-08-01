@@ -12,8 +12,12 @@ module.exports = function Postgresql(scope) {
     scope.container.remove({
       force: true, // Stop and remove
       v: false // Don't remove volumes
-    }, function (err, res) {
-      console.log(err, res);
-    })
+    }, done)
+  }
+
+  this.reinstall = function (done) {
+    this.destroy(function () {
+      this.install(done)
+    }.bind(this))
   }
 }
