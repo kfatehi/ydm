@@ -1,5 +1,5 @@
 module.exports = function Postgresql(scope) {
-  drop = this;
+  var drop = this;
   drop.install = function (done) {
     scope.applyConfig({
       image: "sameersbn/postgresql:latest",

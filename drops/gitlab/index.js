@@ -1,7 +1,11 @@
 module.exports = function Gitlab(scope) {
-  this.image = "sameersbn/gitlab:7:1:0"
-  this.install = function () {
-    console.log("install");
-    console.log(scope);
-  }
+  var drop = this;
+  drop.install = function (done) {
+    scope.applyConfig({
+      image: "sameersbn/gitlab:7.1.1"
+    }, function (err) {
+      if (err) throw err;
+      scope.tailForever();
+    });
+  };
 }
