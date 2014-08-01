@@ -7,4 +7,13 @@ module.exports = function Postgresql(scope) {
       }
     }, done);
   }
+
+  this.destroy = function (done) {
+    scope.container.remove({
+      force: true, // Stop and remove
+      v: false // Don't remove volumes
+    }, function (err, res) {
+      console.log(err, res);
+    })
+  }
 }
