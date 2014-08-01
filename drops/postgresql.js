@@ -5,9 +5,27 @@ module.exports = function Postgresql(scope) {
       volumes: {
         data: '/var/lib/postgresql'
       }
-    }, function (err, res) {
-      // show logs
-      done(err, res)
+    }, function (err) {
+      var inspect = require('util').inspect;
+      if (err) throw err;
+      scope.container.logs({
+        follow: true,
+        stdout: true,
+        stderr: true,
+        tail: 10
+      }, function (err, stream) {
+        if (err) throw err;
+        stream.on('finish', function() { done(err) });
+        stream.on('error', function(e2) { err = new Error(e2) });
+        stream.on('data', function (chunk) {
+          var string = chunk.toString('utf-8');
+          console.log(inspect(string));
+          //if (/PostgreSQL User/.test(string)) {
+          //  console.info(string);
+          //}
+          //stream.end();
+        });
+      })
     });
   }
 
