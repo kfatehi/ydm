@@ -20,7 +20,7 @@ module.exports = function Postgresql(scope) {
         stream.on('error', function(e2) { err = new Error(e2) });
         stream.on('data', function (chunk) {
           var string = chunk.toString('utf-8');
-          var match = string.match(/User:\s(.*),\sPassword:\s(.*)\s+/)
+          var match = string.match(/User:\s(\S+),\sPassword:\s(\S+)\s/)
           if (match) {
             stream.destroy(null)
             scope.data.info = {
