@@ -21,6 +21,8 @@
     "dockerode": "^2.0.1",
     "lodash": "^2.4.1",
     "minimist": "^0.2.0",
+    "progress": "^1.1.7",
+    "rimraf": "^2.2.8",
     "uri-js": "^1.4.2"
   },
   "devDependencies": {

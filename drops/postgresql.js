@@ -1,5 +1,6 @@
 module.exports = function Postgresql(scope) {
-  this.install = function (done) {
+  drop = this;
+  drop.install = function (done) {
     scope.applyConfig({
       image: "sameersbn/postgresql:latest",
       volumes: {
@@ -15,30 +16,32 @@ module.exports = function Postgresql(scope) {
         tail: 10
       }, function (err, stream) {
         if (err) throw err;
-        stream.on('finish', function() { done(err) });
+        stream.on('end', function() { done(err) });
         stream.on('error', function(e2) { err = new Error(e2) });
         stream.on('data', function (chunk) {
           var string = chunk.toString('utf-8');
-          console.log(inspect(string));
-          //if (/PostgreSQL User/.test(string)) {
-          //  console.info(string);
-          //}
-          //stream.end();
+          var match = string.match(/User:\s(.*),\sPassword:\s(.*)\s+/)
+          if (match) {
+            stream.destroy(null)
+            scope.data.info = {
+              user: match[1],
+              password: match[2]
+            }
+            scope.save()
+            done(null, scope.data.info)
+          }
         });
       })
     });
   }
 
-  this.destroy = function (done) {
-    scope.container.remove({
-      force: true, // Stop and remove
-      v: false // Don't remove volumes
-    }, done)
+  drop.destroy = function (done) {
+    scope.destroy(done);
   }
 
-  this.reinstall = function (done) {
-    this.destroy(function () {
-      this.install(done)
-    }.bind(this))
+  drop.reinstall = function (done) {
+    drop.destroy(function () {
+      drop.install(done)
+    })
   }
 }
