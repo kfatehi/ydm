@@ -5,7 +5,10 @@ module.exports = function Postgresql(scope) {
       volumes: {
         data: '/var/lib/postgresql'
       }
-    }, done);
+    }, function (err, res) {
+      // show logs
+      done(err, res)
+    });
   }
 
   this.destroy = function (done) {
