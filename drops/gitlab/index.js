@@ -1,12 +1,9 @@
 module.exports = function(scope, argv, dew) {
-  console.log(scope, argv, dew);
+  var PostgreSQL = dew.drops['postgresql'](argv, dew);
+  var pg = new PostgreSQL()
   return {
     install: function (done) {
-      var pgScope = Dew.findOrCreateScope('postgresql')
-      var pgDrop = new Dew.drops['postgresql'](pgScope)
-
-      pgDrop.install(function () {
-        console.log(arguments);
+      pg.install(function () {
         scope.applyConfig({
           image: "sameersbn/gitlab:7.1.1",
           ports: {
@@ -28,7 +25,7 @@ module.exports = function(scope, argv, dew) {
             GITLAB_HOST: 'gitlab.knban.com',
             GITLAB_EMAIL: 'gitlab@knban.com',
             DB_TYPE: 'postgres',
-            DB_HOST: pgScope.data.host,
+            DB_HOST: pg.data('host'),
             DB_USER: 'gitlab',
             DB_PASS: 'password',
             DB_NAME: 'gitlabhq_production'
