@@ -22,9 +22,8 @@ if (action === 'list') {
     var Drop = DewDrop(argv, dew);
     var drop = new Drop()
     if (drop[action]) {
-      drop[action](function (err, res) {
+      drop[action](function (err) {
         if (err) throw err;
-        if (res) console.log(res);
       });
     } else {
       console.log("Cannot '"+action+"' this drop");

@@ -14,7 +14,7 @@ module.exports = function(scope) {
           scope.localStorage.setItem('pg_pass', pass);
           console.log(scope.name+".pg_user: "+user);
           console.log(scope.name+".pg_pass: "+pass);
-          done(null)
+          done(null, user, pass)
         });
       });
     }

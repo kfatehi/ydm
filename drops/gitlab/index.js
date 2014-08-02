@@ -3,7 +3,9 @@ module.exports = function(scope, argv, dew) {
   var pg = new PostgreSQL()
   return {
     install: function (done) {
-      pg.install(function (err) {
+      pg.install(function (err, pg_user, pg_pass) {
+        if (err) throw new Error(err);
+
       });
     }
   }
