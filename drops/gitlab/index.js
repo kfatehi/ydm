@@ -3,7 +3,14 @@ module.exports = function(scope, argv, dew) {
   var pg = new PostgreSQL()
   return {
     install: function (done) {
-      pg.install(function () {
+      pg.install(function (err) {
+      });
+    }
+  }
+}
+
+/*
+        if (err) throw err;
         scope.applyConfig({
           image: "sameersbn/gitlab:7.1.1",
           ports: {
@@ -34,7 +41,4 @@ module.exports = function(scope, argv, dew) {
           if (err) throw err;
           scope.tailForever();
         });
-      });
-    }
-  }
-}
+       */

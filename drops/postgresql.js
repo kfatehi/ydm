@@ -7,9 +7,9 @@ module.exports = function(scope) {
           data: '/var/lib/postgresql'
         }
       }, function (err) {
-        if (err) done(new Error(err))
+        if (err) throw new Error(err)
         scope.tailUntilMatch(/User:\s(\S+),\sPassword:\s(\S+)\s/, function (err, string, user, pass) {
-          if (err) done(new Error(err))
+          if (err) throw new Error(err)
           scope.localStorage.setItem('pg_user', user)
           scope.localStorage.setItem('pg_pass', pass);
           console.log(scope.name+".pg_user: "+user);
