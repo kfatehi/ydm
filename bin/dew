@@ -19,8 +19,8 @@ if (action === 'list') {
 } else if (dropName) {
   var DewDrop = dew.drops[dropName];
   if (DewDrop) {
-    var Drop = DewDrop();
-    var drop = new Drop({ name: dropName })
+    var Drop = DewDrop(argv);
+    var drop = new Drop()
     if (drop[action]) {
       drop[action](function (err, res) {
         if (err) throw err;
