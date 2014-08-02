@@ -7,12 +7,12 @@ module.exports = function(scope) {
           data: '/var/lib/postgresql'
         }
       }, function (err) {
-        if (err) throw new Error(err);
+        if (err) done(new Error(err))
         scope.tailUntilMatch(/User:\s(\S+),\sPassword:\s(\S+)\s/, function (err, match) {
-          if (err) throw new Error(err);
-          scope.data.info = { user: match[1], password: match[2] }
-          scope.save()
-          done(null, scope.data.info)
+          if (err) done(new Error(err))
+          scope.localStorage.setItem('pg_user', match[1])
+          scope.localStorage.setItem('pg_password', match[2])
+          done(null)
         });
       });
     }
