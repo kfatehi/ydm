@@ -40,13 +40,11 @@ module.exports = function Gitlab(scope, Dew) {
     });
   };
 
-  drop.destroy = function (done) {
-    scope.destroy(done);
-  }
-
+  /*
   drop.reinstall = function (done) {
     drop.destroy(function () {
       drop.install(done)
     })
   }
+ */
 }

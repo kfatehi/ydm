@@ -1,6 +1,5 @@
-module.exports = function Postgresql(scope) {
-  var drop = this;
-  drop.install = function (done) {
+module.exports = {
+  install: function (done) {
     scope.applyConfig({
       image: "sameersbn/postgresql:latest",
       volumes: {
@@ -15,15 +14,5 @@ module.exports = function Postgresql(scope) {
         done(null, scope.data.info)
       });
     });
-  }
-
-  drop.destroy = function (done) {
-    scope.destroy(done);
-  }
-
-  drop.reinstall = function (done) {
-    drop.destroy(function () {
-      drop.install(done)
-    })
   }
 }
