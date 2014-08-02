@@ -37,10 +37,11 @@ if (action === 'list') {
 
 function help() {
   var pkg = require('../package.json');
-  var _0 = path.basename(__filename);
+  var _1 = path.basename(__filename);
+  //var _0 = _.map(_1.split(''), function(){return ' '}).join('')
   console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
   console.log("Usage: ")
-  console.log("  "+_0+" list")
-  console.log("  "+_0+" install <name>")
-  console.log("  "+_0+" destroy <name>")
+  console.log("  "+_1+" list")
+  console.log("  "+_1+" install <name> [--namespace]")
+  console.log("  "+_1+" destroy <name>")
 };
