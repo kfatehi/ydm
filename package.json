@@ -9,7 +9,8 @@
   "scripts": {
     "test": "mocha --recursive test",
     "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
-    "cover": "istanbul cover _mocha -- --recursive test"
+    "cover": "istanbul cover _mocha -- --recursive test",
+    "dev": "watchy -w . -i '/\\.|node_modules|\\.json$' -- dew reinstall gitlab 2>&1 | simple-stacktrace"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "mocha": "^1.21.3",
     "nock": "^0.42.3",
     "simple-stacktrace": "^0.2.1",
-    "sinon": "^1.10.3"
+    "sinon": "^1.10.3",
+    "watchy": "^0.5.2"
   }
 }

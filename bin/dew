@@ -20,7 +20,7 @@ if (action === 'list') {
   var Drop = dew.drops[dropName];
   if (Drop) {
     var scope = dew.findOrCreateScope(dropName);
-    var drop = new Drop(scope)
+    var drop = new Drop(scope, dew)
     if (drop[action]) {
       drop[action](function (err, res) {
         if (err) throw err;
