@@ -1,11 +1,14 @@
-var _ = require('lodash');
+function drops(d) {
+  var _ = require('lodash')
+  return _.zipObject(d, _.map(d, function (n) {
+    return function () {
+      return require('../index').buildDrop(n)
+    }
+  }))
+}
 
-var names = [
+module.exports = drops([
   'gitlab',
   'postgresql',
   'strider'
-];
-
-module.exports = _.zipObject(names, _.map(names, function (n) {
-  return require('../index').buildDrop(n);
-}))
+])

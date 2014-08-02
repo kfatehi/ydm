@@ -17,8 +17,9 @@ if (action === 'list') {
   });
   process.exit(0);
 } else if (dropName) {
-  var Drop = dew.drops[dropName];
-  if (Drop) {
+  var DewDrop = dew.drops[dropName];
+  if (DewDrop) {
+    var Drop = DewDrop();
     var drop = new Drop({ name: dropName })
     if (drop[action]) {
       drop[action](function (err, res) {

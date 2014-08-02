@@ -1,7 +1,5 @@
-module.exports = function Gitlab(scope, Dew) {
-  var drop = this;
-
-  drop.install = function (done) {
+module.exports = {
+  install: function (done) {
     var pgScope = Dew.findOrCreateScope('postgresql')
     var pgDrop = new Dew.drops['postgresql'](pgScope)
 
@@ -38,13 +36,5 @@ module.exports = function Gitlab(scope, Dew) {
         scope.tailForever();
       });
     });
-  };
-
-  /*
-  drop.reinstall = function (done) {
-    drop.destroy(function () {
-      drop.install(done)
-    })
   }
- */
 }
