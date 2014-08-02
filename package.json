@@ -10,7 +10,8 @@
     "test": "mocha --recursive test",
     "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
     "cover": "istanbul cover _mocha -- --recursive test",
-    "dev": "watchy -w . -i '/\\.|node_modules|\\.json$' -- dew reinstall gitlab 2>&1 | simple-stacktrace"
+    "dev-gitlab": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall gitlab 2>&1 | simple-stacktrace",
+    "dev-postgresql": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall postgresql 2>&1 | simple-stacktrace"
   },
   "repository": {
     "type": "git",
