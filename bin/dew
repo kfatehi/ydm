@@ -15,7 +15,6 @@ if (action === 'list') {
   _.each(dew.drops, function (info, name) {
     console.log(" * "+name);
   });
-  process.exit(0);
 } else if (dropName) {
   var DewDrop = dew.drops[dropName];
   if (DewDrop) {
