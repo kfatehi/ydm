@@ -22,6 +22,22 @@ module.exports = function(scope, argv, dew) {
     DB_NAME: 'gitlabhq_production'
   }
 
+  var drop = {
+    requiresNamespace: true,
+    install: function (done) {
+      pg.install(function (err, pgUser, pgPass) {
+        if (err) throw new Error(err);
+        if (scope.localStorage.getItem('configured')) {
+          console.log(scope.name+" has previously configured "+pg.scope.name);
+          startGitlab(done)
+        } else {
+          console.log(scope.name+" will configure "+pg.scope.name);
+          configure(pgUser, pgPass, done);
+        }
+      });
+    }
+  }
+
   function startGitlab(cb) {
     scope.applyConfig({
       env: env,
@@ -30,12 +46,13 @@ module.exports = function(scope, argv, dew) {
         Image: image
       },
       start: {
-        Links: links
+        Links: links,
+        PortBindings:{
+          "22/tcp": [{ "HostPort": "10022" }],
+          "80/tcp": [{ "HostPort": "10080" }]
+        },
       }
-    }, function (err) {
-      if (err) throw err;
-      scope.tailForever();
-    })
+    }, cb);
   }
 
   function setupGitlab(cb) {
@@ -135,18 +152,5 @@ module.exports = function(scope, argv, dew) {
     });
   }
 
-  return {
-    install: function (done) {
-      pg.install(function (err, pgUser, pgPass) {
-        if (err) throw new Error(err);
-        if (scope.localStorage.getItem('configured')) {
-          console.log(scope.name+" has previously configured "+pg.scope.name);
-          startGitlab()
-        } else {
-          console.log(scope.name+" will configure "+pg.scope.name);
-          configure(pgUser, pgPass, done);
-        }
-      });
-    }
-  }
+  return drop;
 }

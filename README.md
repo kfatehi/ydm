@@ -28,7 +28,7 @@ The dew drop provides simple namespaces and persistence (via JSON files on disk 
 
 Finally, we want flexibility -- a dew drop is not a static blueprint but a living, changing one -- it has been designed by me to facilitate this. I hope I did a good job.
 
-So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the dew drop accordingly and just `dew install gitlab --namespace develop` until you get it right.
+So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the dew drop accordingly and just `dew drop gitlab reinstall --namespace develop` until you get it right.
 
 ## Limitations
 
