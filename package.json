@@ -10,7 +10,7 @@
     "test": "mocha --recursive test",
     "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
     "cover": "istanbul cover _mocha -- --recursive test",
-    "dev-gitlab": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall gitlab --namespace \"test.01\" 2>&1 | simple-stacktrace",
+    "dev-gitlab": "bash scripts/dev-gitlab.sh",
     "dev-postgresql": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall postgresql --namespace pgtest 2>&1 | simple-stacktrace"
   },
   "repository": {
@@ -23,6 +23,7 @@
     "dockerode": "^2.0.1",
     "lodash": "^2.4.1",
     "minimist": "^0.2.0",
+    "node-localstorage": "^0.3.4",
     "progress": "^1.1.7",
     "rimraf": "^2.2.8",
     "uri-js": "^1.4.2"
