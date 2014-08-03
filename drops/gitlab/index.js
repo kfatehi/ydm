@@ -31,6 +31,9 @@ module.exports = function(scope, argv, dew) {
 
   function startGitlab(cb) {
     scope.applyConfig(_.assign({}, config, {
+      create: {
+        Image: image
+      },
       start: {
 
       }
@@ -51,7 +54,8 @@ module.exports = function(scope, argv, dew) {
       }
     }), function (err) {
       if (err) throw new Error(err);
-      scope.state.getContainer().attach({
+      var setup = scope.state.getContainer();
+      setup.attach({
         stream: true,
         stdin: true,
         stdout: true,
@@ -81,16 +85,15 @@ module.exports = function(scope, argv, dew) {
             // If we came this far we're ready to destroy the container
             // and flag that gitlab has been configured
             scope.localStorage.getItem('configured', true);
-            console.log(scope.name+" has been configured, removing config container and starting final container.")
+            console.log(scope.name+" has been configured, removing temporary container.")
+            setup.remove({ force: true }, cb)
           }
         });
-      });
-
-      
+      }); 
     })
   }
 
-  function configure(pgUser, pgPass) {
+  function configure(pgUser, pgPass, done) {
     pg.inspect(function (err, data) {
       var exec = require('child_process').exec
         , newPass = Math.random().toString(26).substring(2)
@@ -124,9 +127,11 @@ module.exports = function(scope, argv, dew) {
       pg.install(function (err, pgUser, pgPass) {
         if (err) throw new Error(err);
         if (scope.localStorage.getItem('configured')) {
+          console.log(scope.name+" has previously configured "+pg.scope.name);
           startGitlab()
         } else {
-          configure(pgUser, pgPass);
+          console.log(scope.name+" will configure "+pg.scope.name);
+          configure(pgUser, pgPass, done);
         }
       });
     }
