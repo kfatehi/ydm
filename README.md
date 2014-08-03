@@ -24,6 +24,10 @@ How do you keep track of all this complexity? How do you script it for next time
 
 Well, you can, and you should. Dew provides a way in which to do it -- this blueprint is called a dew drop.
 
-Because docker images are tagged and versioned, you can safely freeze a workflow per a set of Images and the nature of their interconnection and exposure to the outside world. Even so, we want flexibility -- a dew drop is not a static blueprint but a living, changing one (pull requests).
+Because docker images are tagged and versioned, you can safely freeze a workflow per a set of Images.
 
-So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the dew drop accordingly.
+The dew drop provides simple namespaces and persistence (via JSON files on disk exposed as HTML5 localStorage api). In it you can describe the nature of container interconnection, exposure to the outside world, and whatever else may be necessary -- it's just JavaScript.
+
+Finally, we want flexibility -- a dew drop is not a static blueprint but a living, changing one -- it has been designed by me to facilitate this. I hope I did a good job.
+
+So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the dew drop accordingly and just `dew install gitlab --namespace develop` until you get it right.
