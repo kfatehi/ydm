@@ -18,7 +18,7 @@ module.exports = function(scope, argv, dew) {
     DB_TYPE: 'postgres',
     DB_HOST: null,
     DB_USER: 'gitlab',
-    DB_PASS: null,
+    DB_PASS: scope.localStorage.getItem('gitlab_pg_pass'),
     DB_NAME: 'gitlabhq_production'
   }
 
@@ -97,29 +97,26 @@ module.exports = function(scope, argv, dew) {
     })
   }
 
-  function configure(pgUser, pgPass, done) {
+  function configure(pgAdminUser, pgAdminPass, done) {
+    var spawn = require('child_process').spawn
+
     pg.inspect(function (err, data) {
-      var exec = require('child_process').exec
-        , spawn = require('child_process').spawn
-        , newPass = Math.random().toString(26).substring(2)
-        , sql = [], script = null
+      env.DB_PASS = Math.random().toString(26).substring(2)
+      pg.scope.localStorage.setItem('gitlab_pg_pass', env.DB_PASS)
 
-      env.DB_HOST = data.NetworkSettings.IPAddress;
-      sql.push("CREATE ROLE gitlab with LOGIN CREATEDB PASSWORD '"+newPass+"';")
-      sql.push("CREATE DATABASE gitlabhq_production;")
-      sql.push("GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;")
-      script = _.map(sql, function (sql) {
-        return 'psql -U '+pgUser+' -d template1 -h '+env.DB_HOST+' --command \"'+sql+'\"';
-      }).join('\n');
+      env.DB_HOST = data.NetworkSettings.IPAddress
+      scope.localStorage.setItem('gitlab_pg_host', env.DB_HOST)
 
-      var sh = spawn("sh", ["-c", script], {env:{PGPASSWORD:pgPass}});
-      sh.stdout.on('data', function (data) {
-        console.log(data.toString().trim());
-      });
-      sh.stderr.on('data', function (data) {
-        console.error(data.toString().trim());
-      });
+      var sh = spawn("sh", ["-c", _.map([
+        "CREATE ROLE "+env.DB_USER+" with LOGIN CREATEDB PASSWORD '"+env.DB_PASS+"';",
+        "CREATE DATABASE "+env.DB_NAME+";",
+        "GRANT ALL PRIVILEGES ON DATABASE "+env.DB_NAME+" to "+env.DB_USER+";"
+      ], function(sql){
+        return 'psql -U '+pgAdminUser+' -d template1 -h '+env.DB_HOST+' --command \"'+sql+'\"';
+      }).join('\n')], { env:{ PGPASSWORD: pgAdminPass } });
 
+      sh.stdout.on('data', function (data) { console.log(data.toString().trim()) })
+      sh.stderr.on('data', function (data) { console.error(data.toString().trim()) })
       sh.on('close', function (code) {
         if (code !== 0) {
           throw new Error("psql exited with non-zero status");
@@ -128,7 +125,6 @@ module.exports = function(scope, argv, dew) {
           if (scope.localStorage.getItem('gitlabSetup')) {
             startGitlab(done)
           } else {
-            env.DB_PASS = pgPass;
             setupGitlab(function () {
               scope.localStorage.setItem('gitlabSetup', true);
               startGitlab(done)
@@ -136,13 +132,6 @@ module.exports = function(scope, argv, dew) {
           }
         }
       });
-
-/*
-      exec(script, {env:{PGPASSWORD:pgPass}}, function (err, stdout, stderr) {
-        if (err) throw new Error(err);
-        process.stdout.write(stdout);
-        process.stderr.write(stderr);
-      }); */
     });
   }
 
