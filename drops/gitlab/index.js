@@ -17,12 +17,25 @@ module.exports = function(scope, argv, dew) {
   return {
     install: function (done) {
       var pg = new PostgreSQL()
-      pg.install(function (err, pg_user, pg_pass) {
+      pg.install(function (err, pgUser, pgPass) {
         if (err) throw new Error(err);
         pg.inspect(function (err, data) {
+          var exec = require('child_process').exec
+            , newPass = Math.random().toString(26).substring(2)
+            , sql = [], script = null, _ = require('lodash')
+            , psql = null
+            
           env.DB_HOST = data.NetworkSettings.IPAddress;
-          console.log(env);
-          
+          sql.push("CREATE ROLE gitlab with LOGIN CREATEDB PASSWORD '"+newPass+"';")
+          sql.push("CREATE DATABASE gitlabhq_production;")
+          sql.push("GRANT ALL PRIVILEGES ON DATABASE gitlabhq_production to gitlab;")
+          script = _.map(sql, function (sql) {
+            return 'psql -U '+pgUser+' -d template1 -h '+env.DB_HOST+' --command \"'+sql+'\"';
+          }).join('\n');
+          exec(script, {env:{PGPASSWORD:pgPass}}, function (err) {
+            if (err) throw new Error(err);
+            console.log(pg.scope.name+" created gitlab user and database")
+          });
         });
         /*
         scope.applyConfig({
