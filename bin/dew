@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-var argv = require('minimist')(process.argv.slice(2))
-  , action = argv._[0]
-  , dropName = argv._[1]
+var argv = require('minimist')(process.argv.slice(2)) 
   , path = require('path')
   , _ = require('lodash')
   , Dew = require('../index').Dew
@@ -10,12 +8,12 @@ var dew = new Dew({
   src: path.resolve(__dirname, '..')
 });
 
-if (action === 'list') {
+if (argv._[0] === 'list-drops') {
   console.log("Listing drops");
-  _.each(dew.drops, function (info, name) {
-    console.log(" * "+name);
-  });
-} else if (dropName) {
+  listDrops()
+} else if (argv._[0] === 'drop') {
+  var dropName = argv._[1];
+  var action = argv._[2];
   var DewDrop = dew.drops[dropName];
   if (DewDrop) {
     var Drop = DewDrop(argv, dew);
@@ -28,7 +26,13 @@ if (action === 'list') {
       console.log("Cannot '"+action+"' this drop");
     }
   } else {
-    console.error('No drop named '+dropName);
+    if (dropName) {
+      console.error('No drop \''+dropName+'\'. Available drops:');
+      listDrops();
+    } else {
+      console.error("Missing argument <name>. Available drops:")
+      listDrops()
+    }
     process.exit(1);
   }
 } else help()
@@ -39,7 +43,12 @@ function help() {
   //var _0 = _.map(_1.split(''), function(){return ' '}).join('')
   console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
   console.log("Usage: ")
-  console.log("  "+_1+" list")
-  console.log("  "+_1+" install <name> [--namespace]")
-  console.log("  "+_1+" destroy <name>")
+  console.log("  "+_1+" list-drops")
+  console.log("  "+_1+" drop <name> <action>")
 };
+
+function listDrops() {
+  _.each(dew.drops, function (info, name) {
+    console.log(" * "+name);
+  });
+}
