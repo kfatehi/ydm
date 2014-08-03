@@ -1,5 +1,6 @@
 module.exports = function(scope, argv, dew) {
   var PostgreSQL = dew.drops['postgresql'](argv, dew);
+  var image = "sameersbn/gitlab:7.1.1";
   var env = {
     SMTP_DOMAIN: 'knban.com',
     SMTP_HOST: 'localhost',
@@ -14,6 +15,27 @@ module.exports = function(scope, argv, dew) {
     DB_PASS: 'password',
     DB_NAME: 'gitlabhq_production'
   }
+
+  function start(cb) {
+
+  }
+
+  function setup(cb) {
+    scope.applyConfig({
+      image: image,
+      volumes: {
+        data: "/home/git/data"
+      },
+      ports: {
+        10022: 22,
+        10080: 80
+      }
+    }, function (err) {
+      if (err) throw err;
+      scope.tailForever();
+    })
+  }
+
   return {
     install: function (done) {
       var pg = new PostgreSQL()
@@ -45,26 +67,6 @@ module.exports = function(scope, argv, dew) {
             })
           }
         });
-        /*
-        scope.applyConfig({
-          image: 
-          image: "sameersbn/gitlab:7.1.1",
-          ports: {
-            10022: 22,
-            10080: 80
-          },
-          volumes: {
-            data: "/home/git/data"
-          },
-          links: {
-            postgresql: 'postgresql'
-          },
-          env: {
-          }
-        }, function (err) {
-          if (err) throw err;
-          scope.tailForever();
-        })*/
       });
     }
   }
