@@ -31,3 +31,11 @@ The dew drop provides simple namespaces and persistence (via JSON files on disk 
 Finally, we want flexibility -- a dew drop is not a static blueprint but a living, changing one -- it has been designed by me to facilitate this. I hope I did a good job.
 
 So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the dew drop accordingly and just `dew install gitlab --namespace develop` until you get it right.
+
+## Limitations
+
+Although `dew` uses the Docker remote api, it needs to be installed and used directly on the docker host.
+
+This is because `dew` manages volumes for you automatically and needs to be able to create and destroy folders within the `scope` (these can be found in `~/.dew`).
+
+This can be easily solved by making `dew` itself provide/consume an HTTP api of its own. This may actually be a great idea considering that securing the Docker API is not really within in Docker's scope -- therefore `dew` could do it instead.
