@@ -43,12 +43,35 @@ module.exports = function(scope, argv, dew) {
   function setupGitlab(cb) {
     scope.applyConfig(_.assign({}, config, {
       create: {
+        Image: image,
         AttachStdin: true,
-        Tty: true
+        OpenStdin: true,
+        Tty: true,
+        Cmd:[ "app:rake", "gitlab:setup" ]
       }
     }), function (err) {
       if (err) throw err;
-      scope.tailForever();
+      scope.tailUntilMatch(/You will lose any previous data stored in the database/, function (err) {
+        if (err) throw new Error(err);
+        scope.state.getContainer().attach({
+          stream: true,
+          stdin: true,
+          stdout: true,
+          stderr: true
+        }, function (err, stream) {
+          if (err) throw err;
+          var patt = /([0-9a-zA-Z'"#,\-\/_ .@]+)/;
+          stream.on('error', function(e2) { err = new Error(e2) });
+          stream.on('data', function (chunk) {
+            var str = chunk.toString('utf-8');
+            var match = str.match(patt);
+            if (match) console.log(match[0]);
+          });
+          console.log(stream.__proto__);
+          stream.write('yes\n');
+        });
+      });
+
       // tail until this process is over and then
       // remove the gitlab container, but set this var:
       // scope.localStorage.getItem('configured', true);
