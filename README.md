@@ -3,7 +3,8 @@
 Dew is a tool to help manage and automate the complexity encountered in sophisticated uses of Docker.
 
 > May my instructions descend like rain and may my words flow like dew, as light rain upon the grass, and as showers upon new plants.
-> *Deuteronomy 32:2*
+>
+> **Deuteronomy 32:2**
 
 ## Example Use Case
 
