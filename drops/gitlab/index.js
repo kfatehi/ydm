@@ -17,7 +17,7 @@ module.exports = function(scope, argv, dew) {
   }
 
   function start(cb) {
-
+    console.log(env);
   }
 
   function setup(cb) {
