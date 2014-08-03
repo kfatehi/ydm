@@ -22,8 +22,7 @@ module.exports = function(scope, argv, dew) {
         pg.inspect(function (err, data) {
           var exec = require('child_process').exec
             , newPass = Math.random().toString(26).substring(2)
-            , sql = [], script = null, _ = require('lodash')
-            , psql = null
+            , sql = [], script = null, _ = require('lodash'), psql = null
             
           env.DB_HOST = data.NetworkSettings.IPAddress;
           sql.push("CREATE ROLE gitlab with LOGIN CREATEDB PASSWORD '"+newPass+"';")
@@ -36,6 +35,15 @@ module.exports = function(scope, argv, dew) {
             if (err) throw new Error(err);
             console.log(pg.scope.name+" created gitlab user and database")
           });
+
+          if (scope.localStorage.getItem('dbSetup')) {
+            start(done)
+          } else {
+            setup(function () {
+              scope.localStorage.setItem('dbSetup', true);
+              start(done)
+            })
+          }
         });
         /*
         scope.applyConfig({
