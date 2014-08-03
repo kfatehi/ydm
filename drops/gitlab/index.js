@@ -1,4 +1,4 @@
-var  _ = require('lodash')
+var  _ = require('lodash'), util = require('util')
 
 module.exports = function(scope, argv, dew) {
   var PostgreSQL = dew.drops['postgresql'](argv, dew);
@@ -50,31 +50,43 @@ module.exports = function(scope, argv, dew) {
         Cmd:[ "app:rake", "gitlab:setup" ]
       }
     }), function (err) {
-      if (err) throw err;
-      scope.tailUntilMatch(/You will lose any previous data stored in the database/, function (err) {
-        if (err) throw new Error(err);
-        scope.state.getContainer().attach({
-          stream: true,
-          stdin: true,
-          stdout: true,
-          stderr: true
-        }, function (err, stream) {
-          if (err) throw err;
-          var patt = /([0-9a-zA-Z'"#,\-\/_ .@]+)/;
-          stream.on('error', function(e2) { err = new Error(e2) });
-          stream.on('data', function (chunk) {
-            var str = chunk.toString('utf-8');
-            var match = str.match(patt);
-            if (match) console.log(match[0]);
-          });
-          console.log(stream.__proto__);
-          stream.write('yes\n');
+      if (err) throw new Error(err);
+      scope.state.getContainer().attach({
+        stream: true,
+        stdin: true,
+        stdout: true,
+        stderr: true
+      }, function (err, stream) {
+        if (err) throw err;
+        console.log(scope.name+" is being configured, please wait...")
+        stream.on('error', function(e2) { err = new Error(e2) });
+
+        var loginPatt = /login\.+(\S+)/;
+        var passPatt = /password\.+(\S+)/;
+
+        stream.on('data', function (chunk) {
+          var str = chunk.toString('utf-8').trim();
+          var loginMatch = str.match(loginPatt);
+          var passMatch = str.match(passPatt);
+          if (/Do you want to continue/.test(str)) {
+            stream.write('yes\n');
+          }
+          if (loginMatch) {
+            scope.localStorage.setItem('gitlab_login', loginMatch[1])
+            console.log(scope.name+".gitlab_user: "+loginMatch[1]);
+          }
+          if (passMatch) {
+            scope.localStorage.setItem('gitlab_pass', passMatch[1])
+            console.log(scope.name+".gitlab_pass: "+passMatch[1]);
+            // If we came this far we're ready to destroy the container
+            // and flag that gitlab has been configured
+            scope.localStorage.getItem('configured', true);
+            console.log(scope.name+" has been configured, removing config container and starting final container.")
+          }
         });
       });
 
-      // tail until this process is over and then
-      // remove the gitlab container, but set this var:
-      // scope.localStorage.getItem('configured', true);
+      
     })
   }
 
