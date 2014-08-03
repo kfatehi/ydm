@@ -1,19 +1,12 @@
 var  _ = require('lodash'), util = require('util')
 
 module.exports = function(scope, argv, dew) {
-  var PostgreSQL = dew.drops['postgresql'](argv, dew);
-  var pg = new PostgreSQL()
-  var image = "sameersbn/gitlab:7.1.1";
-  var config = {
-    image: image,
-    volumes: {
-      data: "/home/git/data"
-    },
-    ports: {
-      10022: 22,
-      10080: 80
-    }
-  }
+  var PostgreSQL = dew.drops['postgresql'](argv, dew)
+    , pg = new PostgreSQL()
+    , image = "sameersbn/gitlab:7.1.1"
+    , links = [ pg.scope.name+":postgresql" ]
+    , volumes = { data: "/home/git/data" }
+
   var env = {
     SMTP_DOMAIN: 'knban.com',
     SMTP_HOST: 'localhost',
@@ -25,35 +18,45 @@ module.exports = function(scope, argv, dew) {
     DB_TYPE: 'postgres',
     DB_HOST: null,
     DB_USER: 'gitlab',
-    DB_PASS: 'password',
+    DB_PASS: null,
     DB_NAME: 'gitlabhq_production'
   }
 
   function startGitlab(cb) {
-    scope.applyConfig(_.assign({}, config, {
+    scope.applyConfig({
+      env: env,
+      volumes: volumes,
       create: {
         Image: image
       },
       start: {
-
+        Links: links
       }
-    }), function (err) {
+    }, function (err) {
       if (err) throw err;
       scope.tailForever();
     })
   }
 
   function setupGitlab(cb) {
-    scope.applyConfig(_.assign({}, config, {
+    scope.reapplyConfig({
+      env: env,
+      volumes: volumes,
       create: {
         Image: image,
         AttachStdin: true,
         OpenStdin: true,
         Tty: true,
-        Cmd:[ "app:rake", "gitlab:setup" ]
+        Cmd:[ "app:rake", "gitlab:setup" ],
+        Env: _.map(env, function (key, value) {
+          return key+":"+value
+        })
+      },
+      start: {
+        Links: links
       }
-    }), function (err) {
-      if (err) throw new Error(err);
+    }, function (err) {
+      if (err) throw err;
       var setup = scope.state.getContainer();
       setup.attach({
         stream: true,
@@ -70,6 +73,7 @@ module.exports = function(scope, argv, dew) {
 
         stream.on('data', function (chunk) {
           var str = chunk.toString('utf-8').trim();
+          console.log(str);
           var loginMatch = str.match(loginPatt);
           var passMatch = str.match(passPatt);
           if (/Do you want to continue/.test(str)) {
@@ -96,6 +100,7 @@ module.exports = function(scope, argv, dew) {
   function configure(pgUser, pgPass, done) {
     pg.inspect(function (err, data) {
       var exec = require('child_process').exec
+        , spawn = require('child_process').spawn
         , newPass = Math.random().toString(26).substring(2)
         , sql = [], script = null
 
@@ -106,19 +111,38 @@ module.exports = function(scope, argv, dew) {
       script = _.map(sql, function (sql) {
         return 'psql -U '+pgUser+' -d template1 -h '+env.DB_HOST+' --command \"'+sql+'\"';
       }).join('\n');
-      exec(script, {env:{PGPASSWORD:pgPass}}, function (err) {
-        if (err) throw new Error(err);
-        console.log(pg.scope.name+" created gitlab user and database")
+
+      var sh = spawn("sh", ["-c", script], {env:{PGPASSWORD:pgPass}});
+      sh.stdout.on('data', function (data) {
+        console.log(data.toString().trim());
+      });
+      sh.stderr.on('data', function (data) {
+        console.error(data.toString().trim());
       });
 
-      if (scope.localStorage.getItem('postgresConfigured')) {
-        startGitlab(done)
-      } else {
-        setupGitlab(function () {
-          scope.localStorage.setItem('postgresConfigured', true);
-          startGitlab(done)
-        })
-      }
+      sh.on('close', function (code) {
+        if (code !== 0) {
+          throw new Error("psql exited with non-zero status");
+        } else if (code === 0) {
+          console.log(pg.scope.name+" created gitlab user and database")
+          if (scope.localStorage.getItem('gitlabSetup')) {
+            startGitlab(done)
+          } else {
+            env.DB_PASS = pgPass;
+            setupGitlab(function () {
+              scope.localStorage.setItem('gitlabSetup', true);
+              startGitlab(done)
+            })
+          }
+        }
+      });
+
+/*
+      exec(script, {env:{PGPASSWORD:pgPass}}, function (err, stdout, stderr) {
+        if (err) throw new Error(err);
+        process.stdout.write(stdout);
+        process.stderr.write(stderr);
+      }); */
     });
   }
 
