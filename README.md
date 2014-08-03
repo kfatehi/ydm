@@ -6,6 +6,8 @@
 
 Dew is a tool to help manage and automate the complexity encountered in sophisticated uses of Docker.
 
+It is a brand new project, and so things may be broken and the API has not settled down yet.
+
 ## Example Use Case
 
 You want to deploy Gitlab, you find a good Image for it on the Docker Registry.
