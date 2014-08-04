@@ -2,11 +2,11 @@ module.exports = function(scope) {
   return {
     install: function (done) {
       scope.applyConfig({
-        volumes: {
-          data: '/var/lib/postgresql'
-        },
         create: {
-          Image: "sameersbn/postgresql:latest"
+          Image: "sameersbn/postgresql:latest",
+          Binds: scope.managedVolumes({
+            data: '/var/lib/postgresql'
+          })
         }
       }, function (err) {
         if (err) throw new Error(err)
@@ -16,7 +16,7 @@ module.exports = function(scope) {
           scope.localStorage.setItem('pg_pass', pass);
           console.log(scope.name+".pg_user: "+user);
           console.log(scope.name+".pg_pass: "+pass);
-          scope.tailUntilMatch('database system is ready to accept connections', function () {
+          scope.tailUntilMatch(/ready to accept connections/, function () {
             console.log(scope.name+" is ready to accept connections");
             done(null, user, pass)
           })
