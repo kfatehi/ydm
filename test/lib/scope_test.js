@@ -33,4 +33,16 @@ describe('Scope', function() {
       ])
     })
   })
+
+  describe("#setConfig()", function() {
+    it("converts Env from Javascript Object to Docker-style Array", function() {
+      scope.setConfig({ create: { Env: { foo: "bar", baz: true } } })
+      expect(scope.getConfig().create.Env).to.deep.eq([ "foo=bar","baz=true" ])
+    });
+
+    it("leaves Env alone when already an Array", function() {
+      scope.setConfig({ create: { Env: [ "foo=bar", "baz=true" ] } })
+      expect(scope.getConfig().create.Env).to.deep.eq([ "foo=bar","baz=true" ])
+    });
+  });
 })

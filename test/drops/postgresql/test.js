@@ -5,9 +5,9 @@ describe("Postgresql", function() {
   var doneCallback = null 
 
   before(function() {
-    helper.clearScope('postgresql');
+    helper.clearScope('pgtest');
     var dew = new Dew()
-    var PostgreSQL = dew.drops['postgresql']({})
+    var PostgreSQL = dew.drops['postgresql']({ namespace: "pgtest" })
     pg = new PostgreSQL();
   });
 
@@ -22,12 +22,12 @@ describe("Postgresql", function() {
   describe("#install (config)", function() {
     beforeEach(function() {
       doneCallback = sinon.stub()
-      sinon.stub(pg.scope, 'applyConfig')
+      sinon.stub(pg.scope.state, 'apply')
       pg.install()
     });
 
     afterEach(function() {
-      pg.scope.applyConfig.restore();
+      pg.scope.state.apply.restore();
     });
 
     it("does not call done yet", function() {
@@ -35,27 +35,34 @@ describe("Postgresql", function() {
     });
 
     it("applies the config once", function() {
-      expect(pg.scope.applyConfig.callCount).to.eq(1)
+      expect(pg.scope.state.apply.callCount).to.eq(1)
     });
 
-    it("applies the correct config", function() {
-      expect(pg.scope.applyConfig.getCall(0).args[0]).to.deep.eq({
-        create:
-          { Image: 'sameersbn/postgresql:latest',
-            Binds: [ '/tmp/dew-tests/scopes/postgresql/volumes/data:/var/lib/postgresql' ] } })
+    it("applies state with correct config & persists the config", function() {
+      var expectedConfig = {
+        create: {
+          name: 'pgtest.postgresql',
+          Env: [],
+          Image: 'sameersbn/postgresql:latest',
+          Binds: [ '/tmp/dew-tests/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql' ]
+        },
+        start: { Binds: [], Links: [] }
+      }
+      expect(pg.scope.state.apply.getCall(0).args[1]).to.deep.eq(expectedConfig)
+      expect(pg.scope.getConfig()).to.deep.eq(expectedConfig);
     });
   });
 
   describe("#install (callback)", function() {
     beforeEach(function() {
       sinon.stub(pg.scope, 'tailUntilMatch').yields(null, '', 'postgres', 'pass')
-      sinon.stub(pg.scope, 'applyConfig').yields(null)
+      sinon.stub(pg.scope.state, 'apply').yields(null)
       pg.install(doneCallback)
     });
 
     afterEach(function() {
       pg.scope.tailUntilMatch.restore();
-      pg.scope.applyConfig.restore();
+      pg.scope.state.apply.restore();
     });
 
     it("uses tailUntilMatch function twice", function() {
