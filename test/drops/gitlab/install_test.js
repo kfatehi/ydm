@@ -8,7 +8,6 @@ describe("Gitlab#install()", function() {
 
   beforeEach(function(done) {
     sinon.stub(dockerConnect, 'connect').returns({
-      local: true,
       docker: {
         getContainer: sinon.stub().returns({
           inspect: sinon.stub().yields(null, {
