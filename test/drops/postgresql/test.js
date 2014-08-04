@@ -79,8 +79,8 @@ describe("Postgresql", function() {
     });
     
     it("saves harvested data in local storage", function() {
-      expect(pg.scope.localStorage.getItem('pg_user')).to.eq('postgres')
-      expect(pg.scope.localStorage.getItem('pg_pass')).to.eq('pass')
+      expect(pg.scope.storage.getItem('pg_user')).to.eq('postgres')
+      expect(pg.scope.storage.getItem('pg_pass')).to.eq('pass')
     });
   });
 });

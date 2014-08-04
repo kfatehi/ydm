@@ -12,8 +12,8 @@ module.exports = function(scope) {
         if (err) throw new Error(err)
         scope.tailUntilMatch(/User:\s(\S+),\sPassword:\s(\S+)\s/, function (err, string, user, pass) {
           if (err) throw new Error(err)
-          scope.localStorage.setItem('pg_user', user)
-          scope.localStorage.setItem('pg_pass', pass);
+          scope.storage.setItem('pg_user', user)
+          scope.storage.setItem('pg_pass', pass);
           scope.tailUntilMatch(/ready to accept connections/, function () {
             done(null, {
               user: user,
