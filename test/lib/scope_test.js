@@ -1,6 +1,6 @@
 var helper = require('../test_helper.js');
 
-describe('scope', function() {
+describe('Scope', function() {
   var scope = helper.buildScope('test-scope', { namespace: "bad-ideas" })
 
   it(".home is correct", function () {

@@ -20,8 +20,9 @@ if (argv._[0] === 'list-drops') {
     var drop = new Drop()
     if (action) {
       if (drop[action]) {
-        drop[action](function (err) {
+        drop[action](function (err, res) {
           if (err) throw err;
+          if (res) console.log(res);
         });
       } else {
         console.log("Cannot '"+action+"' this drop");

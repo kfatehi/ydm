@@ -4,12 +4,7 @@ describe("Postgresql", function() {
   var pg = null
   var doneCallback = null 
 
-  after(function() {
-    console.log.restore()
-  });
-
   before(function() {
-    sinon.stub(console, 'log');
     helper.clearScope('postgresql');
     var dew = new Dew()
     var PostgreSQL = dew.drops['postgresql']({})
@@ -77,10 +72,15 @@ describe("Postgresql", function() {
       expect("database system is ready to accept connections").to.match(regex)
     });
 
-    it("calls the done callback with the harvested username and password", function() {
-      var args = doneCallback.getCall(0).args
-      expect(args[1]).to.eq('postgres')
-      expect(args[2]).to.eq('pass')
+    it("calls the done callback with harvested data", function() {
+      var data = doneCallback.getCall(0).args[1]
+      expect(data.user).to.eq('postgres')
+      expect(data.password).to.eq('pass')
+    });
+    
+    it("saves harvested data in local storage", function() {
+      expect(pg.scope.localStorage.getItem('pg_user')).to.eq('postgres')
+      expect(pg.scope.localStorage.getItem('pg_pass')).to.eq('pass')
     });
   });
 });

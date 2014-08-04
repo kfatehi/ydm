@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha --recursive test",
-    "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
+    "tdd": "mocha -w -R spec --recursive test 2>&1 | simple-stacktrace",
     "cover": "istanbul cover _mocha -- --recursive test",
     "dev-gitlab": "bash scripts/dev-gitlab.sh",
     "dev-postgresql": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall postgresql --namespace pgtest 2>&1 | simple-stacktrace"

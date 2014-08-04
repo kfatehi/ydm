@@ -14,11 +14,11 @@ module.exports = function(scope) {
           if (err) throw new Error(err)
           scope.localStorage.setItem('pg_user', user)
           scope.localStorage.setItem('pg_pass', pass);
-          console.log(scope.name+".pg_user: "+user);
-          console.log(scope.name+".pg_pass: "+pass);
           scope.tailUntilMatch(/ready to accept connections/, function () {
-            console.log(scope.name+" is ready to accept connections");
-            done(null, user, pass)
+            done(null, {
+              user: user,
+              password: pass
+            })
           })
         });
       });
