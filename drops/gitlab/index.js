@@ -63,7 +63,7 @@ module.exports = function(scope, argv, dew) {
       create: {
         Env: env,
         Image: image,
-        Binds: binds
+        Binds: binds,
         AttachStdin: true,
         OpenStdin: true,
         Tty: true,
