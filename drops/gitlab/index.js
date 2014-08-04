@@ -5,7 +5,10 @@ module.exports = function(scope, argv, dew) {
     , pg = new PostgreSQL()
     , image = "sameersbn/gitlab:7.1.1"
     , links = [ pg.scope.name+":postgresql" ]
-    , volumes = { data: "/home/git/data" }
+
+  var binds = scope.managedVolumes({
+    data: '/home/git/data'
+  })
 
   var env = {
     SMTP_DOMAIN: 'knban.com',
@@ -40,10 +43,10 @@ module.exports = function(scope, argv, dew) {
 
   function startGitlab(cb) {
     scope.applyConfig({
-      env: env,
-      volumes: volumes,
       create: {
-        Image: image
+        Env: env,
+        Image: image,
+        Binds: binds
       },
       start: {
         Links: links,
@@ -57,10 +60,10 @@ module.exports = function(scope, argv, dew) {
 
   function setupGitlab(cb) {
     scope.reapplyConfig({
-      env: env,
-      volumes: volumes,
       create: {
+        Env: env,
         Image: image,
+        Binds: binds
         AttachStdin: true,
         OpenStdin: true,
         Tty: true,
