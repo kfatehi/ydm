@@ -1,11 +1,19 @@
 var expect = require('chai').expect
   , Scope = require('../../lib/scope')
-  , ScopeMaker = require('../../lib/scope_maker')(Scope);
-
+  , ScopeMaker = require('../../lib/scope_maker')(Scope)
+  , dockerConnect = require('../../lib/docker_connect')
+  , sinon = require('sinon')
 
 describe('scope', function() {
   var scope = null;
+
+  afterEach(function() {
+    dockerConnect.connect.restore()
+  });
+
   beforeEach(function() {
+    sinon.stub(dockerConnect, 'connect').returns({ local: true })
+
     scope = ScopeMaker.makeScope('test-scope', {
       name: "war on drugs",
       namespace: "bad-ideas",
