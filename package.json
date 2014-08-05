@@ -16,7 +16,7 @@
     "test": "mocha --recursive test",
     "tdd-old": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
     "tdd": "watchy -w . -i '/\\.|node_modules|\\.json|coverage$' -- mocha -R min --recursive test 2>&1 | simple-stacktrace",
-    "autocover": "watchy -w . -i '/\\.|node_modules|\\.json|coverage$' -- npm run cover",
+    "autocover": "watchy -w . -i '/\\.|node_modules|\\.json|coverage$' -- istanbul cover _mocha -- --recursive test",
     "cover": "istanbul cover _mocha -- --recursive test",
     "cover-blanket": "mocha --require blanket -R html-cov --recursive test > coverage.html",
     "dev-gitlab": "bash scripts/dev-gitlab.sh",
