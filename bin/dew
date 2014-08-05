@@ -11,19 +11,30 @@ var dew = new Dew({
 if (argv._[0] === 'list-drops') {
   console.log("Listing drops");
   listDrops()
-} else if (argv._[0] === 'drop') {
-  var dropName = argv._[1];
-  var action = argv._[2];
+} else {
+  var dropName = argv._[0];
+  var action = argv._[1];
   var DewDrop = dew.drops[dropName];
   if (DewDrop) {
     var Drop = DewDrop(argv, dew);
     var drop = new Drop()
-    if (drop[action]) {
-      drop[action](function (err) {
-        if (err) throw err;
-      });
+    if (action) {
+      if (drop[action]) {
+        drop[action](function (err, res) {
+          if (err) throw err;
+          if (res) console.log(res);
+        });
+      } else {
+        console.log("Cannot '"+action+"' this drop");
+      }
     } else {
-      console.log("Cannot '"+action+"' this drop");
+      var attrs = Object.keys(drop.__proto__);
+      console.log("Available commands: ");
+      _.each(attrs, function (e) {
+        if (_.isFunction(drop[e])) {
+          console.log(" - "+e);
+        }
+      })
     }
   } else {
     if (dropName) {
@@ -35,7 +46,7 @@ if (argv._[0] === 'list-drops') {
     }
     process.exit(1);
   }
-} else help()
+}
 
 function help() {
   var pkg = require('../package.json');
@@ -44,7 +55,7 @@ function help() {
   console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
   console.log("Usage: ")
   console.log("  "+_1+" list-drops")
-  console.log("  "+_1+" drop <name> <action>")
+  console.log("  "+_1+" <drop-name> <action>")
 };
 
 function listDrops() {
