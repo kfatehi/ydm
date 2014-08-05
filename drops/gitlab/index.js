@@ -2,9 +2,12 @@ var  _ = require('lodash'), util = require('util')
 
 module.exports = function(scope, argv, dew) {
   var PostgreSQL = dew.drops['postgresql'](argv, dew)
-    , pg = new PostgreSQL()
-    , image = "sameersbn/gitlab:7.1.1"
-    , links = [ pg.scope.name+":postgresql" ]
+  var pg = new PostgreSQL()
+  var image = "sameersbn/gitlab:7.1.1"
+
+  var links = scope.managedLinks({
+    db: pg
+  })
 
   var binds = scope.managedVolumes({
     data: '/home/git/data'
