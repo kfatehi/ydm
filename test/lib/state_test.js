@@ -206,12 +206,37 @@ describe('State', function() {
   });
 
   describe("destroy()", function() {
-    var mock = null
+    var fs = require('fs'), mock = null;
     beforeEach(function() {
-      mock = helper.mocker().delete('/containers/1?force=true&v=true').reply(204)
+      mock = helper.mocker()
+      .delete('/containers/1?force=true&v=true')
+      .reply(204)
     });
-    it("destroys the container and calls back", function(done) {
+    it("destroys the container", function(done) {
       state.destroy(function () {
+        mock.done()
+        done()
+      })
+    });
+    it("deletes the data volumes", function(done) {
+      var out = scope.managedVolumes({
+        smoke: "/mari/jua/na",
+        drink: "/tan/que/ray"
+      })
+      expect(fs.existsSync(out[0].split(':')[0])).to.be.true;
+      expect(fs.existsSync(out[1].split(':')[0])).to.be.true;
+      state.destroy(function () {
+        expect(fs.existsSync(out[0].split(':')[0])).to.be.false;
+        expect(fs.existsSync(out[1].split(':')[0])).to.be.false;
+        mock.done()
+        done()
+      })
+    });
+
+    it("removes the scope directory", function(done) {
+      expect(fs.existsSync(scope.home)).to.be.true;
+      state.destroy(function () {
+        expect(fs.existsSync(scope.home)).to.be.false;
         mock.done()
         done()
       })
