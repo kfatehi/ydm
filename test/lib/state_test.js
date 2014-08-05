@@ -120,6 +120,36 @@ describe('State', function() {
           });
         });
       });
+
+      describe("mocking docker to 200 on createContainer", function() {
+        var config = { create: { Image: "test-image" } }
+          , newId = null
+        beforeEach(function() {
+          newId = Math.random().toString(24).substring(2)
+          helper.mocker()
+          .post('/containers/create?Image=test-image', {
+            "Image":"test-image"
+          }).reply(201, { Id: newId })
+        });
+
+        it("persists the container id", function(done) {
+          state.apply(scope, config, function (_err, _res) {
+            expect(scope.storage.getItem('_id')).to.eq(newId)
+            done();
+          })
+        });
+
+        it("on successfully starting the container calls State#apply()", function(done) {
+          helper.mocker().post('/containers/'+newId+'/start').reply(204)
+          sinon.spy(state, 'apply')
+          state.apply(scope, config, function (_err, _res) {
+            expect(state.apply.callCount).to.eq(2)
+            expect(state.apply.getCall(1).args).to.deep.eq(state.apply.getCall(0).args)
+            state.apply.restore()
+            done();
+          })
+        });
+      });
     });
 
     describe("mocking docker to 200 on Container#inspect", function() {
@@ -139,6 +169,5 @@ describe('State', function() {
         })
       });
     });
-
   });
 });
