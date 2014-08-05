@@ -6,6 +6,9 @@
   "bin": {
     "dew": "bin/dew"
   },
+  "keywords": [
+    "docker"
+  ],
   "config": {
     "blanket": {
       "pattern": "/",
