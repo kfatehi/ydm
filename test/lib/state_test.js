@@ -5,6 +5,7 @@ describe('State', function() {
 
   beforeEach(function() {
     scope = helper.buildScope('state-tests', { namespace: "dewey" })
+    scope.storage.setItem('_id', 1);
     state = scope.state
   });
 
@@ -59,7 +60,6 @@ describe('State', function() {
 
     describe("mocking docker to 404 on Container#inspect", function() {
       beforeEach(function() {
-        scope.storage.setItem('_id', 1);
         helper.mocker().get('/containers/1/json').reply(404)
       });
       it("bitches if you didnt configure an image", function(done) {
@@ -154,7 +154,6 @@ describe('State', function() {
 
     describe("mocking docker to 200 on Container#inspect", function() {
       beforeEach(function() {
-        scope.storage.setItem('_id', 1);
         helper.mocker().get('/containers/1/json').reply(200, {
           HereIs: "your Shit"
         })
@@ -168,6 +167,54 @@ describe('State', function() {
           done();
         })
       });
+    });
+  });
+
+  describe("ensure()", function() {
+    describe("Container#inspect tells us the container is running", function() {
+      beforeEach(function() {
+        helper.mocker().get('/containers/1/json').reply(200, {
+          State: { Running: true }
+        })
+      });
+
+      it("calls back with no error", function(done) {
+        state.ensure(function (err) {
+          expect(err).to.eq(null)
+          done()
+        })
+      });
+    });
+
+    describe("Container#inspect tells us the container is stopped", function() {
+      beforeEach(function() {
+        helper.mocker().get('/containers/1/json').reply(200, {
+          State: { Running: false }
+        })
+      });
+
+      it("starts the container and calls State#ensure()", function(done) {
+        helper.mocker().post('/containers/1/start').reply(204)
+        sinon.spy(state, 'ensure')
+        state.ensure(function () {
+          expect(state.ensure.callCount).to.eq(2)
+          state.ensure.restore()
+          done()
+        })
+      });
+    });
+  });
+
+  describe("destroy()", function() {
+    var mock = null
+    beforeEach(function() {
+      mock = helper.mocker().delete('/containers/1?force=true&v=true').reply(204)
+    });
+    it("destroys the container and calls back", function(done) {
+      state.destroy(function () {
+        mock.done()
+        done()
+      })
     });
   });
 });
