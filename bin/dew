@@ -11,6 +11,12 @@ var dew = new Dew({
 if (argv._[0] === 'list-drops') {
   console.log("Listing drops");
   listDrops()
+} else if (argv._[0] === "list-containers") {
+  var conn = require('../lib/docker_connect').connect()
+  conn.docker.listContainers(function (err, res) {
+    if ( err ) throw err;
+    console.log(res);
+  })
 } else {
   var dropName = argv._[0];
   var action = argv._[1];
@@ -57,6 +63,7 @@ function help() {
   console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
   console.log("Usage: ")
   console.log("  "+_1+" list-drops")
+  console.log("  "+_1+" list-containers")
   console.log("  "+_1+" <drop-name> <action>")
 };
 
