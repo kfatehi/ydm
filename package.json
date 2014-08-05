@@ -6,10 +6,17 @@
   "bin": {
     "dew": "bin/dew"
   },
+  "config": {
+    "blanket": {
+      "pattern": "/",
+      "data-cover-never": "node_modules"
+    }
+  },
   "scripts": {
     "test": "mocha --recursive test",
     "tdd": "mocha -w -R spec --recursive test 2>&1 | simple-stacktrace",
     "cover": "istanbul cover _mocha -- --recursive test",
+    "cover2": "mocha --require blanket -R html-cov --recursive test > coverage.html",
     "dev-gitlab": "bash scripts/dev-gitlab.sh",
     "dev-postgresql": "watchy -w . -i '/\\.|node_modules|\\.json$' -- sudo dew reinstall postgresql --namespace pgtest 2>&1 | simple-stacktrace"
   },
