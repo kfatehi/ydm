@@ -19,5 +19,8 @@ module.exports = {
       namespace: argv.namespace,
       dewhome: ScopeMaker.mkdir(process.env.DEW_HOME)
     })
+  },
+  mocker: function () {
+    return nock(process.env.DOCKER_HOST)
   }
 }

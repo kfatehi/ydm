@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "mocha --recursive test",
-    "tdd": "mocha -w -R spec --recursive test 2>&1 | simple-stacktrace",
+    "tdd": "mocha -w -R min --recursive test 2>&1 | simple-stacktrace",
     "cover": "istanbul cover _mocha -- --recursive test",
     "cover2": "mocha --require blanket -R html-cov --recursive test > coverage.html",
     "dev-gitlab": "bash scripts/dev-gitlab.sh",
