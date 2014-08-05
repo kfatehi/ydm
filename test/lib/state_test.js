@@ -36,20 +36,56 @@ describe('State', function() {
           done();
         })
       });
-      describe("mocking docker to 404 on createContainer", function() {
+
+      describe("mocking docker to 404 on createContainer (image not pulled)", function() {
         beforeEach(function() {
           helper.mocker()
           .post('/containers/create?Image=test-image', {
             "Image":"test-image"
           }).reply(404)
         });
-        it("creates the container", function(done) {
-          state.apply(scope, {
-            create: { Image: "test-image" }
-          }, function (err) {
-            console.log(err)
-            done()
-          })
+
+        describe("pulling the image", function() {
+          var pullStub = null;
+          
+          beforeEach(function() {
+            pullStub = sinon.stub(state, 'pullImage')
+          });
+
+          afterEach(function() {
+            state.pullImage.restore()
+          });
+
+          describe("pull image succeeds", function() {
+            var callback = null
+              , config = { create: { Image: "test-image" } }
+            beforeEach(function(done) {
+              pullStub.yields(null)
+              state.apply(scope, config, function (_err, _res) {
+                callback = state.pullImage.getCall(0).args[1]
+                done()
+              });
+            });
+
+            it("pulled the right image", function() {
+              expect(state.pullImage.getCall(0).args[0]).to.eq('test-image')
+            });
+
+            it("only pulled it once", function() {
+              expect(state.pullImage.callCount).to.eq(1)
+            });
+
+            it("calls State#apply() again with correct arguments", function() {
+              sinon.stub(state, 'apply');
+              callback()
+              expect(state.apply.callCount).to.eq(1);
+              var args = state.apply.getCall(0).args;
+              expect(args[0]).to.deep.eq(scope)
+              expect(args[1]).to.deep.eq(config)
+              expect(args[2]).to.be.an.instanceof(Function)
+              state.apply.restore()
+            });
+          });
         });
       });
     });
