@@ -5,6 +5,7 @@ describe('State', function() {
 
   beforeEach(function() {
     scope = helper.buildScope('state-tests', { namespace: "dewey" })
+    scope.storage.setItem('_id', 1);
     state = scope.state
   });
 
@@ -59,7 +60,6 @@ describe('State', function() {
 
     describe("mocking docker to 404 on Container#inspect", function() {
       beforeEach(function() {
-        scope.storage.setItem('_id', 1);
         helper.mocker().get('/containers/1/json').reply(404)
       });
       it("bitches if you didnt configure an image", function(done) {
@@ -120,11 +120,40 @@ describe('State', function() {
           });
         });
       });
+
+      describe("mocking docker to 200 on createContainer", function() {
+        var config = { create: { Image: "test-image" } }
+          , newId = null
+        beforeEach(function() {
+          newId = Math.random().toString(24).substring(2)
+          helper.mocker()
+          .post('/containers/create?Image=test-image', {
+            "Image":"test-image"
+          }).reply(201, { Id: newId })
+        });
+
+        it("persists the container id", function(done) {
+          state.apply(scope, config, function (_err, _res) {
+            expect(scope.storage.getItem('_id')).to.eq(newId)
+            done();
+          })
+        });
+
+        it("on successfully starting the container calls State#apply()", function(done) {
+          helper.mocker().post('/containers/'+newId+'/start').reply(204)
+          sinon.spy(state, 'apply')
+          state.apply(scope, config, function (_err, _res) {
+            expect(state.apply.callCount).to.eq(2)
+            expect(state.apply.getCall(1).args).to.deep.eq(state.apply.getCall(0).args)
+            state.apply.restore()
+            done();
+          })
+        });
+      });
     });
 
     describe("mocking docker to 200 on Container#inspect", function() {
       beforeEach(function() {
-        scope.storage.setItem('_id', 1);
         helper.mocker().get('/containers/1/json').reply(200, {
           HereIs: "your Shit"
         })
@@ -139,6 +168,78 @@ describe('State', function() {
         })
       });
     });
+  });
 
+  describe("ensure()", function() {
+    describe("Container#inspect tells us the container is running", function() {
+      beforeEach(function() {
+        helper.mocker().get('/containers/1/json').reply(200, {
+          State: { Running: true }
+        })
+      });
+
+      it("calls back with no error", function(done) {
+        state.ensure(function (err) {
+          expect(err).to.eq(null)
+          done()
+        })
+      });
+    });
+
+    describe("Container#inspect tells us the container is stopped", function() {
+      beforeEach(function() {
+        helper.mocker().get('/containers/1/json').reply(200, {
+          State: { Running: false }
+        })
+      });
+
+      it("starts the container and calls State#ensure()", function(done) {
+        helper.mocker().post('/containers/1/start').reply(204)
+        sinon.spy(state, 'ensure')
+        state.ensure(function () {
+          expect(state.ensure.callCount).to.eq(2)
+          state.ensure.restore()
+          done()
+        })
+      });
+    });
+  });
+
+  describe("destroy()", function() {
+    var fs = require('fs'), mock = null;
+    beforeEach(function() {
+      mock = helper.mocker()
+      .delete('/containers/1?force=true&v=true')
+      .reply(204)
+    });
+    it("destroys the container", function(done) {
+      state.destroy(function () {
+        mock.done()
+        done()
+      })
+    });
+    it("deletes the data volumes", function(done) {
+      var out = scope.managedVolumes({
+        smoke: "/mari/jua/na",
+        drink: "/tan/que/ray"
+      })
+      expect(fs.existsSync(out[0].split(':')[0])).to.be.true;
+      expect(fs.existsSync(out[1].split(':')[0])).to.be.true;
+      state.destroy(function () {
+        expect(fs.existsSync(out[0].split(':')[0])).to.be.false;
+        expect(fs.existsSync(out[1].split(':')[0])).to.be.false;
+        mock.done()
+        done()
+      })
+    });
+
+    it("removes the scope directory", function(done) {
+      expect(fs.existsSync(scope.home)).to.be.true;
+      state.destroy(function () {
+        expect(fs.existsSync(scope.home)).to.be.false;
+        mock.done()
+        done()
+      })
+    });
   });
 });

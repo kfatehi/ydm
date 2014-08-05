@@ -1,11 +1,14 @@
 {
   "name": "dew-node",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "brew for docker",
   "main": "index.js",
   "bin": {
     "dew": "bin/dew"
   },
+  "keywords": [
+    "docker"
+  ],
   "config": {
     "blanket": {
       "pattern": "/",

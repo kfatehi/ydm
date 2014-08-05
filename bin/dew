@@ -37,7 +37,9 @@ if (argv._[0] === 'list-drops') {
       })
     }
   } else {
-    if (dropName) {
+    if (dropName === "help" || argv.help) {
+      help()
+    } else if (dropName) {
       console.error('No drop \''+dropName+'\'. Available drops:');
       listDrops();
     } else {
