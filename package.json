@@ -1,6 +1,6 @@
 {
   "name": "dew-node",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "brew for docker",
   "main": "index.js",
   "bin": {
