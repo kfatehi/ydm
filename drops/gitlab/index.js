@@ -28,7 +28,7 @@ module.exports = function(scope, argv, dew) {
         }
       },
       start: {
-        Links: scope.buildLinksArray({ db: pg }),
+        Links: scope.buildLinksArray({ postgres: pg }),
         PublishAllPorts: !!argv.publish
       }
     }
@@ -65,8 +65,6 @@ module.exports = function(scope, argv, dew) {
       }, options.create),
       start: options.start
     }
-
-    console.log(setupOptions);
 
     scope.applyConfig(setupOptions, function (err) {
       if (err) throw err;
