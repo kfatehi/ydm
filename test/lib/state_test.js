@@ -48,16 +48,6 @@ describe('State', function() {
   });
 
   describe("apply()", function() {
-    describe("no docker mock", function() {
-      it("calls back with a connection error", function(done) {
-        state.apply(scope, {}, function (err) {
-          expect(err.code).to.eq('ECONNREFUSED')
-          expect(err.syscall).to.eq('connect')
-          done()
-        })
-      });
-    });
-
     describe("mocking docker to 404 on Container#inspect", function() {
       beforeEach(function() {
         helper.mocker().get('/containers/1/json').reply(404)

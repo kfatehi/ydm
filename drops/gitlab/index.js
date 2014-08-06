@@ -2,30 +2,33 @@ var  _ = require('lodash'), util = require('util')
 
 module.exports = function(scope, argv, dew) {
   var PostgreSQL = dew.drops['postgresql'](argv, dew)
+
   var pg = new PostgreSQL()
-  var image = "sameersbn/gitlab:7.1.1"
 
-  var links = scope.managedLinks({
-    db: pg
-  })
+  var createOpts = {
+    Image: "sameersbn/gitlab:7.1.1",
+    Binds: scope.managedVolumes({
+      data: '/home/git/data'
+    }),
+    Env: scope.buildEnvArray({
+      SMTP_DOMAIN: 'knban.com',
+      SMTP_HOST: 'localhost',
+      SMTP_PORT: 25,
+      GITLAB_HTTPS: true,
+      GITLAB_HTTPS_ONLY: false,
+      GITLAB_HOST: 'gitlab.knban.com',
+      GITLAB_EMAIL: 'gitlab@knban.com',
+      DB_TYPE: 'postgres',
+      DB_HOST: scope.storage.getItem('gitlab_pg_host'),
+      DB_USER: 'gitlab',
+      DB_PASS: scope.storage.getItem('gitlab_pg_pass'),
+      DB_NAME: 'gitlabhq_production'
+    })
+  }
 
-  var binds = scope.managedVolumes({
-    data: '/home/git/data'
-  })
-
-  var env = {
-    SMTP_DOMAIN: 'knban.com',
-    SMTP_HOST: 'localhost',
-    SMTP_PORT: 25,
-    GITLAB_HTTPS: true,
-    GITLAB_HTTPS_ONLY: false,
-    GITLAB_HOST: 'gitlab.knban.com',
-    GITLAB_EMAIL: 'gitlab@knban.com',
-    DB_TYPE: 'postgres',
-    DB_HOST: null,
-    DB_USER: 'gitlab',
-    DB_PASS: scope.storage.getItem('gitlab_pg_pass'),
-    DB_NAME: 'gitlabhq_production'
+  var startOpts = {
+    Links: scope.buildLinksArray({ db: pg }),
+    PublishAllPorts: true
   }
 
   var drop = {
@@ -46,42 +49,24 @@ module.exports = function(scope, argv, dew) {
 
   function startGitlab(cb) {
     scope.applyConfig({
-      create: {
-        Env: env,
-        Image: image,
-        Binds: binds
-      },
-      start: {
-        Links: links,
-        PortBindings:{
-          "22/tcp": [{ "HostPort": "10022" }],
-          "80/tcp": [{ "HostPort": "10080" }]
-        },
-      }
+      create: createOpts,
+      start: startOpts
     }, cb);
   }
 
   function setupGitlab(cb) {
-    scope.reapplyConfig({
-      create: {
-        Env: env,
-        Image: image,
-        Binds: binds,
+    scope.applyConfig({
+      create: _.assign({}, {
         AttachStdin: true,
         OpenStdin: true,
         Tty: true,
         Cmd:[ "app:rake", "gitlab:setup" ],
-        Env: _.map(env, function (key, value) {
-          return key+":"+value
-        })
-      },
-      start: {
-        Links: links
-      }
+      }, createOpts),
+      start: startOpts
     }, function (err) {
       if (err) throw err;
-      var setup = scope.state.getContainer();
-      setup.attach({
+      var tmpContainer = scope.state.getContainer();
+      tmpContainer.attach({
         stream: true,
         stdin: true,
         stdout: true,
@@ -113,7 +98,7 @@ module.exports = function(scope, argv, dew) {
             // and flag that gitlab has been configured
             scope.storage.getItem('configured', true);
             console.log(scope.name+" has been configured, removing temporary container.")
-            setup.remove({ force: true }, cb)
+            tmpContainer.remove({ force: true }, cb)
           }
         });
       }); 
