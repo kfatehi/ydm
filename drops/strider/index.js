@@ -4,6 +4,9 @@ module.exports = function(scope, argv) {
       scope.applyConfig({
         create: {
           Image: "niallo/strider:latest",
+          Env: {
+            /* https://github.com/Strider-CD/strider#configuring */
+          }
         },
         start: {
           PublishAllPorts: !!argv.publish
