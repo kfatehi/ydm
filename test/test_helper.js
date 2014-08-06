@@ -1,4 +1,4 @@
-process.env.DOCKER_HOST="http://localhost"
+process.env.DOCKER_HOST="http://dew-tests.local"
 process.env.DEW_HOME="/tmp/dew-tests"
 
 Dew = require('../lib/dew')

@@ -2,86 +2,76 @@ var  _ = require('lodash'), util = require('util')
 
 module.exports = function(scope, argv, dew) {
   var PostgreSQL = dew.drops['postgresql'](argv, dew)
+
   var pg = new PostgreSQL()
-  var image = "sameersbn/gitlab:7.1.1"
 
-  var links = scope.managedLinks({
-    db: pg
-  })
-
-  var binds = scope.managedVolumes({
-    data: '/home/git/data'
-  })
-
-  var env = {
-    SMTP_DOMAIN: 'knban.com',
-    SMTP_HOST: 'localhost',
-    SMTP_PORT: 25,
-    GITLAB_HTTPS: true,
-    GITLAB_HTTPS_ONLY: false,
-    GITLAB_HOST: 'gitlab.knban.com',
-    GITLAB_EMAIL: 'gitlab@knban.com',
-    DB_TYPE: 'postgres',
-    DB_HOST: null,
-    DB_USER: 'gitlab',
-    DB_PASS: scope.storage.getItem('gitlab_pg_pass'),
-    DB_NAME: 'gitlabhq_production'
+  function getOptions() {
+    return {
+      create: {
+        Image: "sameersbn/gitlab:7.1.1",
+        Binds: scope.managedVolumes({
+          data: '/home/git/data'
+        }),
+        Env: {
+          SMTP_DOMAIN: 'knban.com',
+          SMTP_HOST: 'localhost',
+          SMTP_PORT: 25,
+          GITLAB_HTTPS: true,
+          GITLAB_HTTPS_ONLY: false,
+          GITLAB_HOST: 'gitlab.knban.com',
+          GITLAB_EMAIL: 'gitlab@knban.com',
+          DB_TYPE: 'postgres',
+          DB_HOST: scope.storage.getItem('gitlab_pg_host'),
+          DB_USER: 'gitlab',
+          DB_PASS: scope.storage.getItem('gitlab_pg_pass'),
+          DB_NAME: 'gitlabhq_production'
+        }
+      },
+      start: {
+        Links: scope.buildLinksArray({ db: pg }),
+        PublishAllPorts: !!argv.publish
+      }
+    }
   }
 
   var drop = {
     requiresNamespace: true,
     install: function (done) {
-      pg.install(function (err, pgUser, pgPass) {
+      pg.install(function (err, info) {
         if (err) throw new Error(err);
         if (scope.storage.getItem('configured')) {
           console.log(scope.name+" has previously configured "+pg.scope.name);
           startGitlab(done)
         } else {
           console.log(scope.name+" will configure "+pg.scope.name);
-          configure(pgUser, pgPass, done);
+          configure(info.user, info.password, done);
         }
       });
     }
   }
 
   function startGitlab(cb) {
-    scope.applyConfig({
-      create: {
-        Env: env,
-        Image: image,
-        Binds: binds
-      },
-      start: {
-        Links: links,
-        PortBindings:{
-          "22/tcp": [{ "HostPort": "10022" }],
-          "80/tcp": [{ "HostPort": "10080" }]
-        },
-      }
-    }, cb);
+    scope.applyConfig(getOptions(), cb);
   }
 
   function setupGitlab(cb) {
-    scope.reapplyConfig({
-      create: {
-        Env: env,
-        Image: image,
-        Binds: binds,
+    var options = getOptions()
+    var setupOptions = {
+      create: _.assign({}, {
         AttachStdin: true,
         OpenStdin: true,
         Tty: true,
         Cmd:[ "app:rake", "gitlab:setup" ],
-        Env: _.map(env, function (key, value) {
-          return key+":"+value
-        })
-      },
-      start: {
-        Links: links
-      }
-    }, function (err) {
+      }, options.create),
+      start: options.start
+    }
+
+    console.log(setupOptions);
+
+    scope.applyConfig(setupOptions, function (err) {
       if (err) throw err;
-      var setup = scope.state.getContainer();
-      setup.attach({
+      var tmpContainer = scope.state.getContainer();
+      tmpContainer.attach({
         stream: true,
         stdin: true,
         stdout: true,
@@ -113,7 +103,7 @@ module.exports = function(scope, argv, dew) {
             // and flag that gitlab has been configured
             scope.storage.getItem('configured', true);
             console.log(scope.name+" has been configured, removing temporary container.")
-            setup.remove({ force: true }, cb)
+            tmpContainer.remove({ force: true }, cb)
           }
         });
       }); 
@@ -122,20 +112,21 @@ module.exports = function(scope, argv, dew) {
 
   function configure(pgAdminUser, pgAdminPass, done) {
     var spawn = require('child_process').spawn
+    var env = getOptions().create.Env;
 
     pg.inspect(function (err, data) {
-      env.DB_PASS = Math.random().toString(26).substring(2)
-      pg.scope.storage.setItem('gitlab_pg_pass', env.DB_PASS)
+      var DB_PASS = Math.random().toString(26).substring(2)
+      scope.storage.setItem('gitlab_pg_pass', DB_PASS)
 
-      env.DB_HOST = data.NetworkSettings.IPAddress
-      scope.storage.setItem('gitlab_pg_host', env.DB_HOST)
+      var DB_HOST = data.NetworkSettings.IPAddress
+      scope.storage.setItem('gitlab_pg_host', DB_HOST)
 
       var sh = spawn("sh", ["-c", _.map([
-        "CREATE ROLE "+env.DB_USER+" with LOGIN CREATEDB PASSWORD '"+env.DB_PASS+"';",
+        "CREATE ROLE "+env.DB_USER+" with LOGIN CREATEDB PASSWORD '"+DB_PASS+"';",
         "CREATE DATABASE "+env.DB_NAME+";",
         "GRANT ALL PRIVILEGES ON DATABASE "+env.DB_NAME+" to "+env.DB_USER+";"
       ], function(sql){
-        return 'psql -U '+pgAdminUser+' -d template1 -h '+env.DB_HOST+' --command \"'+sql+'\"';
+        return 'psql -U '+pgAdminUser+' -d template1 -h '+DB_HOST+' --command \"'+sql+'\"';
       }).join('\n')], { env:{ PGPASSWORD: pgAdminPass } });
 
       sh.stdout.on('data', function (data) { console.log(data.toString().trim()) })
