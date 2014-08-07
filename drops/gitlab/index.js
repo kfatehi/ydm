@@ -41,11 +41,19 @@ module.exports = function(scope, argv, dew) {
   function start(done) {
     if (get('configuredGitlab')) {
       scope.applyConfig(getOptions(), function () {
-        done(null, {
-          gitlab: {
-            info: JSON.parse(get('gitlabInfo')),
+        scope.inspectContainer(function (err, data) {
+          var ip = data.NetworkSettings.IPAddress;
+          done(err, JSON.stringify({
+            ip_address: ip,
+            ports: data.NetworkSettings.Ports,
+            app: _.assign({
+              urls:{
+               http: "http://"+ip+"/",
+               https: "https://"+ip+"/"
+              }
+            }, JSON.parse(get('gitlabInfo'))),
             notes: "You may get 502 errors for a few minutes while assets precompile."
-          }
+          }, null, 2))
         })
       });
     } else setup(done)
