@@ -6,7 +6,39 @@
 
 Dew is a tool to help manage and automate the complexity encountered in sophisticated uses of Docker.
 
-It is a brand new project, and so things may be broken and the API has not settled down yet.
+## Requirements
+
+Dew works on any machine that has Docker v1.1.1 or newer installed locally. See Limitations at the end of this document for non-local possibilities.
+
+## Install
+
+Use npm to install:
+
+`npm install -g dew`
+
+## Usage Examples
+
+Install [Strider-CD](https://github.com/Strider-CD/strider) in one command, and publish all ports.
+
+`dew strider install --publish`
+
+That was easy considering that strider is self-contained. Let's try something more difficult.
+
+Install [GitLab Community Edition](https://gitlab.com/gitlab-org/gitlab-ce/tree/master) in one command, and publish all ports.
+
+`dew gitlab install --namespace awesome --publish`
+
+## Other Software
+
+You can create "drops" by looking at the current examples in the `drops/` directory. All you need to get started is a Docker image. For a simple example, look at the `postgresql` dew drop.
+
+If you need to store additional files, create a directory (e.g. `drops/gitlab/index.js`) -- but if it's something simple, you can just create a single file (e.g. `drops/postgresql.js`).
+
+*Fork, automate, submit pull requests!*
+
+## Testing
+
+You can add tests for your drop -- take a look at `test/drops/postgresql/test.js` for a simple example.
 
 ## Example Use Case
 
