@@ -41,7 +41,12 @@ module.exports = function(scope, argv, dew) {
   function start(done) {
     if (get('configuredGitlab')) {
       scope.applyConfig(getOptions(), function () {
-        done(null, JSON.parse(get('gitlabInfo')))
+        done(null, {
+          gitlab: {
+            info: JSON.parse(get('gitlabInfo')),
+            notes: "You may get 502 errors for a few minutes while assets precompile."
+          }
+        })
       });
     } else setup(done)
   }
@@ -121,7 +126,7 @@ module.exports = function(scope, argv, dew) {
       , spawn = require('child_process').spawn
       , env = getOptions().create.Env;
 
-    pg.inspect(function (err, data) {
+    pg.scope.inspectContainer(function (err, data) {
       if (err) throw err;
       var DB_PASS = Math.random().toString(26).substring(2)
       scope.storage.setItem('gitlab_pg_pass', DB_PASS)

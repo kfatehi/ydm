@@ -1,6 +1,6 @@
 {
   "name": "dew-node",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "brew for docker",
   "main": "index.js",
   "bin": {
@@ -36,6 +36,7 @@
     "dockerode": "^2.0.1",
     "lodash": "^2.4.1",
     "minimist": "^0.2.0",
+    "mkdirp": "^0.5.0",
     "node-localstorage": "^0.3.4",
     "progress": "^1.1.7",
     "rimraf": "^2.2.8",
