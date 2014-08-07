@@ -254,7 +254,7 @@ describe('State', function() {
 
       })
 
-      it.only("removes (unshared) linked (dependent) containers", function (done) {
+      it("removes (unshared) linked (dependent) containers", function (done) {
         var out = scope.managedLinks({
           smoke: jackHerer,
           drink: spottedCow
@@ -263,6 +263,8 @@ describe('State', function() {
           expect(fs.existsSync(jackHerer.scope.home)).to.be.false;
           expect(fs.existsSync(spottedCow.scope.home)).to.be.false;
           mock.done()
+          mock2.done()
+          mock3.done()
           done()
         })
       })
@@ -273,8 +275,6 @@ describe('State', function() {
       state.destroy(function () {
         expect(fs.existsSync(scope.home)).to.be.false;
         mock.done()
-        mock2.done()
-        mock3.done()
         done()
       })
     });
