@@ -24,7 +24,7 @@ module.exports = function(scope, argv, dew) {
         }
       },
       start: {
-        Links: scope.buildLinksArray({ postgres: pg }),
+        Links: scope.managedLinks({ postgres: pg }),
         PublishAllPorts: !!argv.publish
       }
     }

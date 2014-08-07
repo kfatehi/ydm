@@ -12,8 +12,9 @@ module.exports = {
   clearScope: function (scope) {
     require('rimraf').sync(process.env.DEW_HOME+'/scopes/'+scope)
   },
-  buildScope: function (name, argv) {
-    this.clearScope(argv.namespace || name);
+  buildScope: function (name, argv, opts) {
+    var options = opts || { clear: true };
+    if (options.clear) this.clearScope(argv.namespace || name);
     return ScopeMaker.makeScope(name, {
       name: name,
       namespace: argv.namespace,

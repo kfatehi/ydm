@@ -3,8 +3,9 @@ var helper = require('../test_helper.js');
 describe('Scope', function() {
   var scope = helper.buildScope('test-scope', { namespace: "bad-ideas" })
 
-  it(".home is correct", function () {
+  it(".home is correct and real", function () {
     expect(scope.home).to.eq('/tmp/dew-tests/scopes/bad-ideas/test-scope')
+    expect(require('fs').existsSync(scope.home)).to.be.true;
   })
 
   it(".name is correct", function () {
