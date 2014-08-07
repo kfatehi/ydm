@@ -208,12 +208,14 @@ describe('State', function() {
       .delete('/containers/1?force=true&v=true')
       .reply(204)
     });
+
     it("destroys the container", function(done) {
       state.destroy(function () {
         mock.done()
         done()
       })
     });
+
     it("deletes the data volumes", function(done) {
       var out = scope.managedVolumes({
         smoke: "/mari/jua/na",
