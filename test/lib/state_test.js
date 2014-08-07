@@ -27,6 +27,7 @@ describe('State', function() {
         "tag": "0.0.1"
       })
     });
+
     describe("when there is an error", function() {
       it("calls back with the error", function(done) {
         mock.reply(200, '{"error": "the error"}')
@@ -36,10 +37,15 @@ describe('State', function() {
         })
       });
     });
+
     describe("when everything looks ok", function() {
-      it("calls back with null error", function(done) {
+      it("prints data and calls back without error", function(done) {
         mock.reply(200, '{"cool": "all good"}')
+        sinon.stub(console, 'info')
         state.pullImage('some-proggie:0.0.1', function (err) {
+          expect(console.info.callCount).to.eq(1)
+          expect(console.info.getCall(0).args[0]).to.deep.eq({ cool: "all good" })
+          console.info.restore()
           expect(err).to.eq(null)
           done();
         })
@@ -202,12 +208,14 @@ describe('State', function() {
       .delete('/containers/1?force=true&v=true')
       .reply(204)
     });
+
     it("destroys the container", function(done) {
       state.destroy(function () {
         mock.done()
         done()
       })
     });
+
     it("deletes the data volumes", function(done) {
       var out = scope.managedVolumes({
         smoke: "/mari/jua/na",
@@ -222,6 +230,45 @@ describe('State', function() {
         done()
       })
     });
+
+    describe("linked", function () {
+      var jackHerer = null, spottedCow = null, mock2 = null, mock3 = null;
+
+      beforeEach(function () {
+        jackHerer = { scope: helper.buildScope('herb', { namespace: "drugs" }) }
+        spottedCow = { scope: helper.buildScope('ale', { namespace: "drugs" }, { clear: false }) }
+
+        jackHerer.scope.storage.setItem('_id', 2)
+        spottedCow.scope.storage.setItem('_id', 3)
+
+        expect(fs.existsSync(jackHerer.scope.home)).to.be.true;
+        expect(fs.existsSync(spottedCow.scope.home)).to.be.true;
+
+        mock2 = helper.mocker()
+        .delete('/containers/2?force=true&v=true')
+        .reply(204)
+
+        mock3 = helper.mocker()
+        .delete('/containers/3?force=true&v=true')
+        .reply(204)
+
+      })
+
+      it("removes (unshared) linked (dependent) containers", function (done) {
+        var out = scope.managedLinks({
+          smoke: jackHerer,
+          drink: spottedCow
+        })
+        state.destroy(function () {
+          expect(fs.existsSync(jackHerer.scope.home)).to.be.false;
+          expect(fs.existsSync(spottedCow.scope.home)).to.be.false;
+          mock.done()
+          mock2.done()
+          mock3.done()
+          done()
+        })
+      })
+    })
 
     it("removes the scope directory", function(done) {
       expect(fs.existsSync(scope.home)).to.be.true;
