@@ -46,7 +46,7 @@ describe("Postgresql", function() {
           Image: 'sameersbn/postgresql:latest',
           Binds: [ '/tmp/dew-tests/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql' ]
         },
-        start: { Binds: [], Links: [] }
+        start: { Binds: [], Links: [], PublishAllPorts: false }
       }
       expect(pg.scope.state.apply.getCall(0).args[1]).to.deep.eq(expectedConfig)
       expect(pg.scope.getConfig()).to.deep.eq(expectedConfig);
@@ -57,12 +57,16 @@ describe("Postgresql", function() {
     beforeEach(function() {
       sinon.stub(pg.scope, 'tailUntilMatch').yields(null, '', 'postgres', 'pass')
       sinon.stub(pg.scope.state, 'apply').yields(null)
+      sinon.stub(pg.scope, 'inspectContainer').yields(null, {
+        NetworkSettings: { IPAddress: 123 }
+      })
       pg.install(doneCallback)
     });
 
     afterEach(function() {
       pg.scope.tailUntilMatch.restore();
       pg.scope.state.apply.restore();
+      pg.scope.inspectContainer.restore();
     });
 
     it("uses tailUntilMatch function twice", function() {
@@ -83,6 +87,7 @@ describe("Postgresql", function() {
       var data = doneCallback.getCall(0).args[1]
       expect(data.user).to.eq('postgres')
       expect(data.password).to.eq('pass')
+      expect(data.ip_address).to.eq(123)
     });
     
     it("saves harvested data in local storage", function() {

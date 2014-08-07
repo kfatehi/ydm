@@ -43,7 +43,7 @@ module.exports = function(scope, argv, dew) {
       scope.applyConfig(getOptions(), function () {
         scope.inspectContainer(function (err, data) {
           var ip = data.NetworkSettings.IPAddress;
-          done(err, JSON.stringify({
+          done(err, {
             ip_address: ip,
             ports: data.NetworkSettings.Ports,
             app: _.assign({
@@ -53,7 +53,7 @@ module.exports = function(scope, argv, dew) {
               }
             }, JSON.parse(get('gitlabInfo'))),
             notes: "You may get 502 errors for a few minutes while assets precompile."
-          }, null, 2))
+          })
         })
       });
     } else setup(done)

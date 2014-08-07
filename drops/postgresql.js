@@ -1,4 +1,4 @@
-module.exports = function(scope) {
+module.exports = function(scope, argv, dew) {
   return {
     install: function (done) {
       scope.applyConfig({
@@ -7,6 +7,9 @@ module.exports = function(scope) {
           Binds: scope.managedVolumes({
             data: '/var/lib/postgresql'
           })
+        },
+        start: {
+          PublishAllPorts: !!argv.publish
         }
       }, function (err) {
         if (err) throw new Error(err)
@@ -15,9 +18,14 @@ module.exports = function(scope) {
           scope.storage.setItem('pg_user', user)
           scope.storage.setItem('pg_pass', pass);
           scope.tailUntilMatch(/ready to accept connections/, function () {
-            done(null, {
-              user: user,
-              password: pass
+            scope.inspectContainer(function (err, data) {
+              var ip = data.NetworkSettings.IPAddress;
+              done(null, {
+                ip_address: ip,
+                ports: data.NetworkSettings.Ports,
+                user: user,
+                password: pass
+              })
             })
           })
         });
