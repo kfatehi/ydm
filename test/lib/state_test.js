@@ -27,6 +27,7 @@ describe('State', function() {
         "tag": "0.0.1"
       })
     });
+
     describe("when there is an error", function() {
       it("calls back with the error", function(done) {
         mock.reply(200, '{"error": "the error"}')
@@ -36,10 +37,15 @@ describe('State', function() {
         })
       });
     });
+
     describe("when everything looks ok", function() {
-      it("calls back with null error", function(done) {
+      it("prints data and calls back without error", function(done) {
         mock.reply(200, '{"cool": "all good"}')
+        sinon.stub(console, 'info')
         state.pullImage('some-proggie:0.0.1', function (err) {
+          expect(console.info.callCount).to.eq(1)
+          expect(console.info.getCall(0).args[0]).to.deep.eq({ cool: "all good" })
+          console.info.restore()
           expect(err).to.eq(null)
           done();
         })
