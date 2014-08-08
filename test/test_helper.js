@@ -1,5 +1,6 @@
 process.env.DOCKER_HOST="http://dew-tests.local"
-process.env.DEW_HOME="/tmp/dew-tests"
+var home = (process.platform === 'win32') ? process.env.HOMEPATH : process.env.HOME;
+process.env.DEW_HOME = require('path').join(home, ".dew-tests")
 
 Dew = require('../lib/dew')
 expect = require('chai').expect

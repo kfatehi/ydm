@@ -4,7 +4,7 @@ describe('Scope', function() {
   var scope = helper.buildScope('test-scope', { namespace: "bad-ideas" })
 
   it(".home is correct and real", function () {
-    expect(scope.home).to.eq('/tmp/dew-tests/scopes/bad-ideas/test-scope')
+    expect(scope.home).to.eq(process.env.DEW_HOME+'/scopes/bad-ideas/test-scope')
     expect(require('fs').existsSync(scope.home)).to.be.true;
   })
 
@@ -13,7 +13,7 @@ describe('Scope', function() {
   })
 
   it(".namespace.home is correct", function () {
-    expect(scope.namespace.home).to.eq('/tmp/dew-tests/scopes/bad-ideas')
+    expect(scope.namespace.home).to.eq(process.env.DEW_HOME+'/scopes/bad-ideas')
   })
 
   describe("#managedLinks()", function () {
@@ -60,8 +60,8 @@ describe('Scope', function() {
         drink: "/tan/que/ray"
       })
       expected = [
-        '/tmp/dew-tests/scopes/bad-ideas/test-scope/volumes/smoke:/mari/jua/na',
-        '/tmp/dew-tests/scopes/bad-ideas/test-scope/volumes/drink:/tan/que/ray'
+        process.env.DEW_HOME+'/scopes/bad-ideas/test-scope/volumes/smoke:/mari/jua/na',
+        process.env.DEW_HOME+'/scopes/bad-ideas/test-scope/volumes/drink:/tan/que/ray'
       ]
     })
     
