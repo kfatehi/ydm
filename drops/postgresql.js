@@ -3,13 +3,13 @@ module.exports = function(scope, argv, dew) {
     install: function (done) {
       scope.applyConfig({
         create: {
-          Image: "sameersbn/postgresql:latest",
+          Image: "sameersbn/postgresql:latest"
+        },
+        start: {
+          PublishAllPorts: !!argv.publish,
           Binds: scope.managedVolumes({
             data: '/var/lib/postgresql'
           })
-        },
-        start: {
-          PublishAllPorts: !!argv.publish
         }
       }, function (err) {
         if (err) throw new Error(err)

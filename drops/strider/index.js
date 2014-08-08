@@ -9,7 +9,10 @@ module.exports = function(scope, argv) {
           }
         },
         start: {
-          PublishAllPorts: !!argv.publish
+          PublishAllPorts: !!argv.publish,
+          Binds: scope.managedVolumes({
+            home: '/home/strider'
+          }),
         }
       }, function (err) {
         if (err) throw err;

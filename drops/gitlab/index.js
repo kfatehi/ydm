@@ -7,7 +7,6 @@ module.exports = function(scope, argv, dew) {
     return {
       create: {
         Image: "sameersbn/gitlab:7.1.1",
-        Binds: scope.managedVolumes({ data: '/home/git/data' }),
         Env: {
           SMTP_DOMAIN: 'knban.com',
           SMTP_HOST: 'localhost',
@@ -25,6 +24,7 @@ module.exports = function(scope, argv, dew) {
       },
       start: {
         Links: scope.managedLinks({ postgres: pg }),
+        Binds: scope.managedVolumes({ data: '/home/git/data' }),
         PublishAllPorts: !!argv.publish
       }
     }
@@ -69,7 +69,14 @@ module.exports = function(scope, argv, dew) {
   }
 
   return {
-    requiresNamespace: true,
+    require: {
+      '--namespace': "uses links, therefore a namespace is STRONGLY recommended"
+    },
+    recommend: {
+      // You'd put env vars here, like SMTP server info, etc
+      // and we'll proc the user to provide them through argv
+      "--env-file": "many environment variables are settable, make it easy and point to a file (NOT IMPLEMENTED YET! EEK)"
+    },
     install: function (done) {
       pg.install(function (err, info) {
         if (err) throw err;
