@@ -43,10 +43,12 @@ describe("Postgresql", function() {
         create: {
           name: 'pgtest.postgresql',
           Env: [],
-          Image: 'sameersbn/postgresql:latest',
-          Binds: [ '/tmp/dew-tests/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql' ]
+          Image: 'sameersbn/postgresql:latest'
         },
-        start: { Binds: [], Links: [], PublishAllPorts: false }
+        start: {
+          Binds: [
+            '/tmp/dew-tests/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql'
+          ], Links: [], PublishAllPorts: false }
       }
       expect(pg.scope.state.apply.getCall(0).args[1]).to.deep.eq(expectedConfig)
       expect(pg.scope.getConfig()).to.deep.eq(expectedConfig);
