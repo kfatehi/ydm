@@ -74,8 +74,6 @@ Although `dew` uses the Docker remote api, it needs to be installed and used dir
 
 This is because `dew` manages volumes for you automatically and needs to be able to create and destroy folders within the `scope` (these can be found in `~/.dew`).
 
-This can be easily solved by making `dew` itself provide/consume an HTTP api of its own. This may actually be a great idea considering that securing the Docker API is not really within in Docker's scope -- therefore `dew` could do it instead.
-
 This can be easily solved by making `dew` itself provide/consume an HTTP api of its own. This may actually be a great idea considering that securing the Docker API is not really within Docker's scope -- therefore `dew` could do it instead.
 
 ## Upstream API Resources
