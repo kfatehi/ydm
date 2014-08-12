@@ -1,10 +1,10 @@
 {
-  "name": "dew-node",
+  "name": "ddew",
   "version": "0.0.5",
   "description": "brew for docker",
   "main": "index.js",
   "bin": {
-    "dew": "bin/dew"
+    "dew": "bin/ddew"
   },
   "keywords": [
     "docker"
