@@ -1,6 +1,6 @@
 {
   "name": "ddew",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "brew for docker",
   "main": "index.js",
   "bin": {
