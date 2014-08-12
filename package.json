@@ -1,10 +1,10 @@
 {
-  "name": "ddew",
-  "version": "0.0.6",
-  "description": "brew for docker",
+  "name": "ydm",
+  "version": "0.0.7",
+  "description": "yet another docker management tool",
   "main": "index.js",
   "bin": {
-    "dew": "bin/ddew"
+    "ydm": "bin/dew"
   },
   "keywords": [
     "docker"
@@ -14,12 +14,12 @@
     "tdd": "watchy -w . -i '/\\.|node_modules|\\.json|coverage$' -- mocha -R min --recursive test 2>&1 | simple-stacktrace",
     "autocover": "watchy -w . -i '/\\.|node_modules|\\.json|coverage$' -- istanbul cover _mocha -- --recursive test",
     "cover": "istanbul cover _mocha -- --recursive test",
-    "reset-dew": "sudo rm -rf ~/.dew ; sudo docker ps -a | tail -n +2 | awk '{ print $1 }' | xargs sudo docker rm -f",
+    "reset-ydm": "sudo rm -rf ~/.ydm ; sudo docker ps -a | tail -n +2 | awk '{ print $1 }' | xargs sudo docker rm -f",
     "watch-docker": "watch -tn1 sudo docker ps -a"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/keyvanfatehi/dew.git"
+    "url": "https://github.com/keyvanfatehi/ydm.git"
   },
   "author": "Keyvan Fatehi <keyvanfatehi@gmail.com>",
   "license": "ISC",

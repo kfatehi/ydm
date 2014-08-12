@@ -1,3 +1,7 @@
+**Warning** This is pre-release software. Please don't use it yet... unless you've made sure it does what you expect which most likely means you'd have contributed code to it. The only reason it is already on npm is so that I don't have to change the name again...
+
+---
+
 # ydm
 
 `ydm` is a command line tool to help manage and automate the complexity encountered in sophisticated uses of Docker.
