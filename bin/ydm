@@ -2,10 +2,10 @@
 var argv = require('minimist')(process.argv.slice(2)) 
   , _ = require('lodash')
   , cli = require('../lib/cli')
-  , Dew = require('../index').Dew
+  , App = require('../lib/app')
   , path = require('path')
 
-var dew = new Dew({
+var app = new App({
   src: path.resolve(__dirname, '..')
 });
 
@@ -19,9 +19,9 @@ if (argv._[0] === 'list-drops') {
     console.log(res);
   })
 } else {
-  var intent = cli.parse(argv, dew)
+  var intent = cli.parse(argv, app)
   if (intent.DewDrop) {
-    cli.run(argv, dew)
+    cli.run(argv, app)
   } else {
     if (intent.dropName === "help" || argv.help) {
       help()
@@ -40,7 +40,7 @@ function help() {
   var pkg = require('../package.json');
   var _1 = path.basename(__filename);
   //var _0 = _.map(_1.split(''), function(){return ' '}).join('')
-  console.log("Dew "+pkg.version+" ( "+pkg.repository.url+" ) ")
+  console.log("Ydm "+pkg.version+" ( "+pkg.repository.url+" ) ")
   console.log("Usage: ")
   console.log("  "+_1+" list-drops")
   console.log("  "+_1+" list-containers")
@@ -48,7 +48,7 @@ function help() {
 };
 
 function listDrops() {
-  _.each(dew.drops, function (info, name) {
+  _.each(app.drops, function (info, name) {
     console.log(" * "+name);
   });
 }
