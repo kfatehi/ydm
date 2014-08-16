@@ -84,12 +84,15 @@ describe('State', function() {
             state.pullImage.restore()
           });
 
-          describe.skip("pull image succeeds", function() {
+          describe("pull image succeeds", function() {
             var callback = null
               , config = { create: { Image: "test-image" } }
             beforeEach(function(done) {
               pullStub.yields(null)
+              helper.mocker().get('/containers/1/json').reply(200, { State: { Running: true } })
+              helper.mocker().get('/containers/1/json').reply(200, { State: { Running: true } })
               state.apply(scope, config, function (_err, _res) {
+                if (_err) throw _err;
                 callback = state.pullImage.getCall(0).args[1]
                 done()
               });
@@ -137,6 +140,7 @@ describe('State', function() {
 
         it("persists the container id", function(done) {
           state.apply(scope, config, function (_err, _res) {
+            if (_err) throw _err;
             expect(scope.storage.getItem('_id')).to.eq(newId)
             done();
           })
@@ -145,6 +149,7 @@ describe('State', function() {
         it("on successfully starting the container calls State#apply()", function(done) {
           sinon.spy(state, 'apply')
           state.apply(scope, config, function (_err, _res) {
+            if (_err) throw _err;
             expect(state.apply.callCount).to.eq(2)
             expect(state.apply.getCall(1).args).to.deep.eq(state.apply.getCall(0).args)
             state.apply.restore()
@@ -163,6 +168,7 @@ describe('State', function() {
       it("calls State#ensure() once with a callback", function(done) {
         sinon.stub(state, 'ensure').yields()
         state.apply(scope, { create: {} }, function (err, res) {
+          if (err) throw err;
           expect(state.ensure.callCount).to.eq(1)
           expect(state.ensure.getCall(0).args[0]).to.be.an.instanceof(Function)
           state.ensure.restore()
