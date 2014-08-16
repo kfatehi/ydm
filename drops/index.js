@@ -1,8 +1,10 @@
+var dropMaker = require('../lib/drop_maker')
+
 function drops(d) {
   var _ = require('lodash')
   return _.zipObject(d, _.map(d, function (name) {
     return function (argv, dew) {
-      return require('../index').buildDrop(name, argv, dew)
+      return dropMaker.buildDrop(name, argv, dew)
     }
   }))
 }

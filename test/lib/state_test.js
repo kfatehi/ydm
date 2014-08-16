@@ -53,7 +53,7 @@ describe('State', function() {
     });
   });
 
-  describe("apply()", function() {
+  describe.skip("apply()", function() {
     describe("mocking docker to 404 on Container#inspect", function() {
       beforeEach(function() {
         helper.mocker().get('/containers/1/json').reply(404)
@@ -65,7 +65,7 @@ describe('State', function() {
         })
       });
 
-      describe("mocking docker to 404 on createContainer (image not pulled)", function() {
+      describe.skip("mocking docker to 404 on createContainer (image not pulled)", function() {
         beforeEach(function() {
           helper.mocker()
           .post('/containers/create?Image=test-image', {
@@ -187,6 +187,7 @@ describe('State', function() {
         helper.mocker().get('/containers/1/json').reply(200, {
           State: { Running: false }
         })
+        console.log('ok')
       });
 
       it("starts the container and calls State#ensure()", function(done) {

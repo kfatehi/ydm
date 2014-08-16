@@ -6,8 +6,8 @@ describe("Postgresql", function() {
 
   before(function() {
     helper.clearScope('pgtest');
-    var dew = new Dew()
-    var PostgreSQL = dew.drops['postgresql']({ namespace: "pgtest" })
+    var app = new helper.App()
+    var PostgreSQL = app.drops['postgresql']({ namespace: "pgtest" })
     pg = new PostgreSQL();
   });
 

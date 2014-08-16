@@ -20,8 +20,8 @@ describe('Scope', function() {
     var out = null, expected = null;
     before(function() {
       helper.clearScope('pgtest');
-      var dew = new Dew()
-      var PostgreSQL = dew.drops['postgresql']({ namespace: "drugs" })
+      var app = new helper.App()
+      var PostgreSQL = app.drops['postgresql']({ namespace: "drugs" })
       marijuana = new PostgreSQL();
       tanqueray = new PostgreSQL();
       out = scope.managedLinks({

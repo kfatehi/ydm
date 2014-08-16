@@ -1,7 +1,6 @@
 var Dew = require('./lib/dew')
   , Scope = require('./lib/scope')
-  , scopeMaker = require('./lib/scope_maker')(Scope)
-  , dropMaker = require('./lib/drop_maker')(scopeMaker)
+  , scopeMaker = require('./lib/scope_maker')
 
 module.exports = {
   Dew: Dew,
