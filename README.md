@@ -36,7 +36,7 @@ If you need to store additional files, create a directory (e.g. `drops/gitlab/in
 
 *Fork, automate, submit pull requests!*
 
-## Testing
+## Testing Drops
 
 You can add tests for your drop -- take a look at `test/drops/postgresql/test.js` for a simple example.
 
@@ -75,6 +75,10 @@ Although `ydm` uses the Docker remote api, it needs to be installed and used dir
 This is because `ydm` manages volumes for you automatically and needs to be able to create and destroy folders within the `scope` (these can be found in `~/.ydm`).
 
 This can be easily solved by making `ydm` itself provide/consume an HTTP api of its own. This may actually be a great idea considering that securing the Docker API is not really within Docker's scope -- therefore `ydm` could do it instead.
+
+## Hacking
+
+A Vagrantfile is included that sets up node, npm, and docker in an ubuntu box.
 
 ## Upstream API Resources
 
