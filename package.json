@@ -38,7 +38,7 @@
     "chai": "^1.9.1",
     "istanbul": "^0.3.0",
     "mocha": "^1.21.3",
-    "nock": "^0.43.1",
+    "nock": "^0.44.3",
     "simple-stacktrace": "^0.2.1",
     "sinon": "^1.10.3",
     "watchy": "^0.5.2"
