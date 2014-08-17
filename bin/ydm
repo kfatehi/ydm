@@ -4,10 +4,21 @@ var argv = require('minimist')(process.argv.slice(2))
   , cli = require('../lib/cli')
   , App = require('../lib/app')
   , path = require('path')
+  , pkg = require('../package.json')
 
 var app = new App({
   src: path.resolve(__dirname, '..')
 });
+
+if (argv.version) {
+  console.log("Ydm "+pkg.version)
+  process.exit(0)
+}
+
+if (argv.help) {
+  help()
+  process.exit(0)
+}
 
 if (argv._[0] === 'list-drops') {
   console.log("Listing drops");
@@ -23,7 +34,7 @@ if (argv._[0] === 'list-drops') {
   if (intent.DewDrop) {
     cli.run(argv, app)
   } else {
-    if (intent.dropName === "help" || argv.help) {
+    if (intent.dropName === "help") {
       help()
     } else if (intent.dropName) {
       console.error('No drop \''+intent.dropName+'\'. Available drops:');
@@ -37,7 +48,6 @@ if (argv._[0] === 'list-drops') {
 }
 
 function help() {
-  var pkg = require('../package.json');
   var _1 = path.basename(__filename);
   //var _0 = _.map(_1.split(''), function(){return ' '}).join('')
   console.log("Ydm "+pkg.version+" ( "+pkg.repository.url+" ) ")
