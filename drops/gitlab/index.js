@@ -2,25 +2,58 @@ module.exports = function(scope, argv, dew) {
   var  _ = require('lodash')
     , PostgreSQL = dew.drops['postgresql'](argv, dew)
     , pg = new PostgreSQL()
+    , fs = require('fs')
+    , sh = require('shelljs')
+    , path = require('path')
+
+  return {
+    requireDuring: {
+      install: {
+        "--env": "highly customizable through environment variables, pass in a JSON file. Example: "+JSON.stringify(require('./env.example.json'), null, 4)+"\nFor more information visit https://github.com/sameersbn/docker-gitlab"
+      }
+    },
+    requireAlways: {
+      '--namespace': "uses links, therefore a namespace is required",
+    },
+    install: function (done) {
+      pg.install(function (err, info) {
+        if (err) throw err;
+        if (get('configuredPostgres')) {
+          start(done)
+        } else {
+          configurePostgres(info, function (err) {
+            if (err) throw err;
+            console.log(pg.scope.name+" persisted gitlab user and database")
+            set('configuredPostgres', true)
+            start(done)
+          })
+        }
+      });
+    }
+  }
+
+  var userEnv = null;
 
   function getOptions() {
+    if (! userEnv) {
+      var filePath = null;
+      try {
+        filePath = path.join(sh.pwd(), argv.env)
+        userEnv = require(filePath);
+      } catch (e) {
+        throw new Error('--env was not passed a valid path')
+      }
+    }
     return {
       create: {
         Image: "sameersbn/gitlab:7.1.1",
-        Env: {
-          SMTP_DOMAIN: 'knban.com',
-          SMTP_HOST: 'localhost',
-          SMTP_PORT: 25,
-          GITLAB_HTTPS: true,
-          GITLAB_HTTPS_ONLY: false,
-          GITLAB_HOST: 'gitlab.knban.com',
-          GITLAB_EMAIL: 'gitlab@knban.com',
+        Env: _.assign({}, {
           DB_TYPE: 'postgres',
           DB_HOST: scope.storage.getItem('gitlab_pg_host'),
           DB_USER: 'gitlab',
           DB_PASS: scope.storage.getItem('gitlab_pg_pass'),
           DB_NAME: 'gitlabhq_production'
-        }
+        }, userEnv)
       },
       start: {
         Links: scope.managedLinks({ postgres: pg }),
@@ -68,31 +101,6 @@ module.exports = function(scope, argv, dew) {
     })
   }
 
-  return {
-    require: {
-      '--namespace': "uses links, therefore a namespace is STRONGLY recommended"
-    },
-    recommend: {
-      // You'd put env vars here, like SMTP server info, etc
-      // and we'll proc the user to provide them through argv
-      "--env-file": "many environment variables are settable, make it easy and point to a file (NOT IMPLEMENTED YET! EEK)"
-    },
-    install: function (done) {
-      pg.install(function (err, info) {
-        if (err) throw err;
-        if (get('configuredPostgres')) {
-          start(done)
-        } else {
-          configurePostgres(info, function (err) {
-            if (err) throw err;
-            console.log(pg.scope.name+" persisted gitlab user and database")
-            set('configuredPostgres', true)
-            start(done)
-          })
-        }
-      });
-    }
-  }
 
   function configureGitlab(cb) {
     var options = getOptions()
