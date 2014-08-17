@@ -7,9 +7,13 @@ module.exports = function(scope, argv, dew) {
     , path = require('path')
 
   return {
-    require: {
+    requireDuring: {
+      install: {
+        "--env": "highly customizable through environment variables, pass in a JSON file. Example: "+JSON.stringify(require('./env.example.json'), null, 4)+"\nFor more information visit https://github.com/sameersbn/docker-gitlab"
+      }
+    },
+    requireAlways: {
       '--namespace': "uses links, therefore a namespace is required",
-      "--env": "highly customizable through environment variables, pass in a JSON file. Example: "+JSON.stringify(require('./env.example.json'), null, 4)+"\nFor more information visit https://github.com/sameersbn/docker-gitlab"
     },
     install: function (done) {
       pg.install(function (err, info) {
