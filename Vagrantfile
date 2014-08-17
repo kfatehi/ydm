@@ -13,7 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     export DEBIAN_FRONTEND=noninteractive
     curl -sSL https://get.docker.io/ubuntu/ | sudo sh
     chown vagrant /var/run/docker.sock
-    apt-get install -y nodejs npm
+    apt-get install -y nodejs npm postgresql-client
     update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
     cd /vagrant && npm link
   EOF
