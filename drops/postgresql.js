@@ -1,4 +1,4 @@
-module.exports = function(scope, argv, dew) {
+module.exports = function(scope, argv, ydm) {
   return {
     install: function (done) {
       scope.applyConfig({

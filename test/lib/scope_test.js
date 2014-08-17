@@ -1,10 +1,16 @@
 var helper = require('../test_helper.js');
 
-describe('Scope', function() {
-  var scope = helper.buildScope('test-scope', { namespace: "bad-ideas" })
+describe.only('Scope', function() {
+  var scope = null;
+  beforeEach(function(done) {
+    helper.buildScope('test-scope', { namespace: "bad-ideas" }, null, function (err, _scope) {
+      scope = _scope
+      done();
+    })
+  });
 
   it(".home is correct and real", function () {
-    expect(scope.home).to.eq(process.env.DEW_HOME+'/scopes/bad-ideas/test-scope')
+    expect(scope.home).to.eq(process.env.YDM_HOME+'/scopes/bad-ideas/test-scope')
     expect(require('fs').existsSync(scope.home)).to.be.true;
   })
 
@@ -13,7 +19,7 @@ describe('Scope', function() {
   })
 
   it(".namespace.home is correct", function () {
-    expect(scope.namespace.home).to.eq(process.env.DEW_HOME+'/scopes/bad-ideas')
+    expect(scope.namespace.home).to.eq(process.env.YDM_HOME+'/scopes/bad-ideas')
   })
 
   describe("#managedLinks()", function () {
@@ -60,8 +66,8 @@ describe('Scope', function() {
         drink: "/tan/que/ray"
       })
       expected = [
-        process.env.DEW_HOME+'/scopes/bad-ideas/test-scope/volumes/smoke:/mari/jua/na',
-        process.env.DEW_HOME+'/scopes/bad-ideas/test-scope/volumes/drink:/tan/que/ray'
+        process.env.YDM_HOME+'/scopes/bad-ideas/test-scope/volumes/smoke:/mari/jua/na',
+        process.env.YDM_HOME+'/scopes/bad-ideas/test-scope/volumes/drink:/tan/que/ray'
       ]
     })
     

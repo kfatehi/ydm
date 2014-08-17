@@ -1,6 +1,6 @@
-module.exports = function(scope, argv, dew) {
+module.exports = function(scope, argv, ydm) {
   var  _ = require('lodash')
-    , PostgreSQL = dew.drops['postgresql'](argv, dew)
+    , PostgreSQL = ydm.drops['postgresql'](argv, ydm)
     , pg = new PostgreSQL()
 
   function getOptions() {
@@ -69,14 +69,6 @@ module.exports = function(scope, argv, dew) {
   }
 
   return {
-    require: {
-      '--namespace': "uses links, therefore a namespace is STRONGLY recommended"
-    },
-    recommend: {
-      // You'd put env vars here, like SMTP server info, etc
-      // and we'll proc the user to provide them through argv
-      "--env-file": "many environment variables are settable, make it easy and point to a file (NOT IMPLEMENTED YET! EEK)"
-    },
     install: function (done) {
       pg.install(function (err, info) {
         if (err) throw err;
