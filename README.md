@@ -1,4 +1,4 @@
-**Warning** This is pre-release software. Please don't use it yet... unless you've made sure it does what you expect which most likely means you'd have contributed code to it. The only reason it is already on npm is so that I don't have to change the name again...
+**Warning** This is pre-release software. I don't recommend you to try it unless you're sure it does what you expect which most likely means you contributed code to it.
 
 ---
 
