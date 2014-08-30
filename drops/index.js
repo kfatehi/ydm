@@ -6,8 +6,8 @@ var path = require('path')
 function drops(d) {
   var _ = require('lodash')
   return _.zipObject(d, _.map(d, function (name) {
-    return function (argv, dew) {
-      return dropMaker.buildDrop(name, argv, dew)
+    return function (argv, ydm) {
+      return dropMaker.buildDrop(name, argv, ydm)
     }
   }))
 }
