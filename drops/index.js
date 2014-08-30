@@ -1,4 +1,7 @@
 var dropMaker = require('../lib/drop_maker')
+var fs = require('fs')
+var _ = require('lodash')
+var path = require('path')
 
 function drops(d) {
   var _ = require('lodash')
@@ -9,8 +12,8 @@ function drops(d) {
   }))
 }
 
-module.exports = drops([
-  'gitlab',
-  'postgresql',
-  'strider'
-])
+module.exports = function(dropsPath) {
+  return drops(_.map(_.without(fs.readdirSync(dropsPath), 'index.js'), function(fname) {
+    return fname.replace(path.extname(fname), '')
+  }))
+}
