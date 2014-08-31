@@ -22,7 +22,7 @@ describe("CLI", function() {
 
   it("performs a drop action", function() {
     cli.run({
-      _: ['postgresql', 'action']
+      _: ['action', 'postgresql']
     }, app)
     expect(stub.callCount).to.eq(1)
   });
