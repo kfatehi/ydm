@@ -4,7 +4,7 @@ describe('State', function() {
   var scope = null, state = null
 
   beforeEach(function() {
-    scope = helper.buildScope('state-tests', { namespace: "dewey" })
+    scope = helper.buildScope('state-tests', { namespace: "ydmey" })
     scope.storage.setItem('_id', 1);
     state = scope.state
   });

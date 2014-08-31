@@ -1,6 +1,6 @@
-process.env.DOCKER_HOST="http://dew-tests.local"
+process.env.DOCKER_HOST="http://ydm-tests.local"
 var home = (process.platform === 'win32') ? process.env.HOMEPATH : process.env.HOME;
-process.env.YDM_HOME = require('path').join(home, ".dew-tests")
+process.env.YDM_HOME = require('path').join(home, ".ydm-tests")
 
 expect = require('chai').expect
 sinon = require('sinon')
@@ -19,7 +19,7 @@ module.exports = {
     return scopeMaker.makeScope(name, {
       name: name,
       namespace: argv.namespace,
-      dewhome: scopeMaker.mkdir(process.env.YDM_HOME)
+      ydmhome: scopeMaker.mkdir(process.env.YDM_HOME)
     })
   },
   mocker: function () {

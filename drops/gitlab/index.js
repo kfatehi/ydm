@@ -1,6 +1,6 @@
-module.exports = function(scope, argv, dew) {
+module.exports = function(scope, argv, ydm) {
   var  _ = require('lodash')
-    , PostgreSQL = dew.drops['postgresql'](argv, dew)
+    , PostgreSQL = ydm.drops['postgresql'](argv, ydm)
     , pg = new PostgreSQL()
     , fs = require('fs')
     , sh = require('shelljs')
