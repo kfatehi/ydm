@@ -8,7 +8,7 @@
 
 ## Requirements
 
-`ydm` works on any machine that has Docker v1.1.1 or newer installed locally. See Limitations at the end of this document for non-local possibilities.
+`ydm` works on any machine that has Docker v1.1.1 or newer installed locally. See [ydm-api](https://github.com/keyvanfatehi/ydm-api) to use it remotely.
 
 ## Install
 
@@ -74,7 +74,7 @@ Although `ydm` uses the Docker remote api, it needs to be installed and used dir
 
 This is because `ydm` manages volumes for you automatically and needs to be able to create and destroy folders within the `scope` (these can be found in `~/.ydm`).
 
-This can be easily solved by making `ydm` itself provide/consume an HTTP api of its own. This may actually be a great idea considering that securing the Docker API is not really within Docker's scope -- therefore `ydm` could do it instead.
+See [ydm-api](https://github.com/keyvanfatehi/ydm-api) if you're interested in using `ydm` remotely via HTTP API.
 
 ## Hacking
 
