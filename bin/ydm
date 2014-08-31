@@ -29,22 +29,10 @@ if (argv._[0] === 'list-drops') {
     if ( err ) throw err;
     console.log(res);
   })
+} else if (argv._[0] == 'help' || argv.h || argv.help) {
+  help()
 } else {
-  var intent = cli.parse(argv, app)
-  if (intent.DewDrop) {
-    cli.run(argv, app)
-  } else {
-    if (intent.dropName === "help") {
-      help()
-    } else if (intent.dropName) {
-      console.error('No drop \''+intent.dropName+'\'. Available drops:');
-      listDrops();
-    } else {
-      console.error("Missing argument <name>. Available drops:")
-      listDrops()
-    }
-    process.exit(1);
-  }
+  cli.run(argv, app, help, listDrops)
 }
 
 function help() {
@@ -54,7 +42,7 @@ function help() {
   console.log("Usage: ")
   console.log("  "+_1+" list-drops")
   console.log("  "+_1+" list-containers")
-  console.log("  "+_1+" <drop-name> <action>")
+  console.log("  "+_1+" <action> <drop-name>")
 };
 
 function listDrops() {
