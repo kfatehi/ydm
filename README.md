@@ -20,13 +20,13 @@ Use npm to install:
 
 Install [Strider-CD](https://github.com/Strider-CD/strider) in one command, and publish all ports.
 
-`ydm strider install --publish`
+`ydm install strider --publish`
 
 That was easy considering that strider is self-contained. Let's try something more difficult.
 
 Install [GitLab Community Edition](https://gitlab.com/gitlab-org/gitlab-ce/tree/master) in one command, and publish all ports.
 
-`ydm gitlab install --namespace awesome --publish`
+`ydm install strider --namespace awesome --publish`
 
 ## Other Software
 
@@ -66,7 +66,7 @@ The `ydm` drop provides simple namespaces and persistence (via JSON files on dis
 
 Finally, we want flexibility -- a `ydm` drop is not a static blueprint but a living, changing one -- it has been designed by me to facilitate this. I hope I did a good job.
 
-So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the `ydm` drop accordingly and just `ydm drop gitlab reinstall --namespace develop` until you get it right.
+So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the `ydm` drop accordingly and just `ydm reinstall gitlab --namespace develop` until you get it right.
 
 ## Limitations
 
