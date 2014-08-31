@@ -47,7 +47,7 @@ describe("Postgresql", function() {
         },
         start: {
           Binds: [
-            process.env.DEW_HOME+'/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql'
+            process.env.YDM_HOME+'/scopes/pgtest/postgresql/volumes/data:/var/lib/postgresql'
           ], Links: [], PublishAllPorts: false }
       }
       expect(pg.scope.state.apply.getCall(0).args[1]).to.deep.eq(expectedConfig)
