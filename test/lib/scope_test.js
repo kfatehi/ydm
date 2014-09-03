@@ -21,7 +21,7 @@ describe('Scope', function() {
     before(function() {
       helper.clearScope('pgtest');
       var app = new helper.App()
-      var PostgreSQL = app.drops['postgresql']({ namespace: "drugs" })
+      var PostgreSQL = app.drops['postgresql']({ namespace: "drugs" }, {})
       marijuana = new PostgreSQL();
       tanqueray = new PostgreSQL();
       out = scope.managedLinks({

@@ -20,7 +20,9 @@ module.exports = {
       name: name,
       namespace: argv.namespace,
       ydmhome: scopeMaker.mkdir(process.env.YDM_HOME)
-    })
+    }, new this.App({
+      scopesPath: process.env.YDM_HOME+'/scopes'
+    }))
   },
   mocker: function () {
     return nock(process.env.DOCKER_HOST)
