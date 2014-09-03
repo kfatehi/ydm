@@ -70,7 +70,7 @@ Finally, we want flexibility -- a `ydm` drop is not a static blueprint but a liv
 
 So whenever Sameer extracts Redis out of the Gitlab image and forces you to use that in a linked fashion too, you'll be ready, you'll just edit the `ydm` drop accordingly and just `ydm reinstall gitlab --namespace develop` until you get it right.
 
-## Limitations
+## Remote API
 
 Although `ydm` uses the Docker remote api, it needs to be installed and used directly on the docker host.
 
@@ -81,8 +81,3 @@ See [ydm-api](https://github.com/keyvanfatehi/ydm-api) if you're interested in u
 ## Hacking
 
 A Vagrantfile is included that sets up node, npm, and docker in an ubuntu box.
-
-## Upstream API Resources
-
-* https://docs.docker.com/reference/api/docker_remote_api_v1.13/
-* https://github.com/apocas/dockerode/blob/master/lib/container.js
