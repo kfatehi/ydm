@@ -26,7 +26,9 @@ That was easy considering that strider is self-contained. Let's try something mo
 
 Install [GitLab Community Edition](https://gitlab.com/gitlab-org/gitlab-ce/tree/master) in one command, and publish all ports.
 
-`ydm install strider --namespace awesome --publish`
+`ydm install gitlab --namespace awesome --publish`
+
+You will get useful JSON back on STDOUT.
 
 ## Other Software
 
