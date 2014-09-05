@@ -1,6 +1,6 @@
 {
   "name": "ydm",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "yet another docker management tool",
   "main": "index.js",
   "bin": {
