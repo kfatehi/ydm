@@ -1,6 +1,6 @@
 {
   "name": "ydm",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "yet another docker management tool",
   "main": "index.js",
   "bin": {
@@ -21,7 +21,10 @@
     "type": "git",
     "url": "https://github.com/keyvanfatehi/ydm.git"
   },
-  "author": "Keyvan Fatehi <keyvanfatehi@gmail.com>",
+  "author": {
+    "name": "Keyvan Fatehi",
+    "email": "keyvanfatehi@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "bluebird": "^2.2.2",
