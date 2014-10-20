@@ -1,7 +1,3 @@
-**Warning** This is pre-release software. I don't recommend you to try it unless you're sure it does what you expect which most likely means you contributed code to it.
-
----
-
 # ydm
 
 `ydm` is a command line tool to help manage and automate the complexity encountered in sophisticated uses of Docker.
@@ -15,6 +11,14 @@
 Use npm to install:
 
 `npm install -g ydm`
+
+## Drop Definitions
+
+In `ydm` a "drop" is a script or directory + index.js written in JavaScript and placed in the `drops` directory.
+
+The drop provides an environment in which to control Docker (using the dockerode library + additional abstractions) to install multiple containers, extract data out of them, save that data, reuse that data, etc. Basically you can do whatever you want in a drop to handle whatever insanity might be involved in your application.
+
+To reference other drops, you just need to make sure they exist in the drops directory.
 
 ## Usage Examples
 
