@@ -81,3 +81,12 @@ See [ydm-api](https://github.com/keyvanfatehi/ydm-api) if you're interested in u
 ## Hacking
 
 A Vagrantfile is included that sets up node, npm, and docker in an ubuntu box.
+
+# Docs
+
+## Destroy (and Reinstall)
+
+Destroy (and reinstall, which depends on destroy) are soft and do no harm unless you activate one or more destructive switches:
+
+`--removeVolumes` delete any volumes on disk associated with the container
+`--removeLinks` recursively delete any other containers linked to the container
